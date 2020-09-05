@@ -112,4 +112,22 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Prototype
+    public class PrototypeTest
+    {
+        private readonly Employee t;
+        public PrototypeTest()
+        {
+            t = new Employee("Scott");
+        }
+        [Fact]
+        public void CreateTest()
+        {
+            Employee e = (Employee)t.Clone();
+            t.Name = "Sandy";
+            Assert.NotEqual(t.GetHashCode(), e.GetHashCode());
+        }
+    }
+    #endregion
 }
