@@ -57,4 +57,24 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Decorator
+    public class DecoratorTest
+    {
+        [Fact]
+        public void DecorateTest()
+        {
+            DecoratedText t = new UnderlinedText(
+                    new PlainText("foo")
+            );
+            Assert.Equal("foo\n___", t.ToString());
+
+            t = new SurroundedText(
+                new UnderlinedText(
+                    new PlainText("foo")
+            ));
+            Assert.Equal("|foo|\n|___|", t.ToString());
+        }
+    }
+    #endregion
 }
