@@ -21,7 +21,20 @@ namespace patterns_test
             Assert.Equal("Scott", t.ShowName());
             Assert.Equal("Scott", t2.ShowName());
         }
+    }
+    #endregion
 
+    #region Bridge
+    public class BridgeTest
+    {
+        [Fact]
+        public void DrawTest()
+        {
+            Character maaario = new Character(new RedRenderar());
+            Character luuuigi = new Character(new GreenRenderar());
+            Assert.Equal("Drawing in Red", maaario.Draw());
+            Assert.Equal("Drawing in Green", luuuigi.Draw());
+        }
     }
     #endregion
 }
