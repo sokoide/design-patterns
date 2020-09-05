@@ -89,4 +89,31 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Flyweight
+    public class FlyweightTest
+    {
+        [Fact]
+        public void SpreadSheetTest()
+        {
+            SpreadSheet s = new SpreadSheet(3, 3);
+            Format f1 = new Format { FontName = "Osaka", FontSize = 12 };
+            Format f2 = new Format { FontName = "Monaco", FontSize = 10 };
+
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    s.SetData(x, y, "foo");
+                    if (x % 2 == 0)
+                        s.SetFormat(x, y, f1);
+                    else
+                        s.SetFormat(x, y, f2);
+                }
+            }
+            Assert.Equal("Monaco", s.Cell(1, 1).Format.FontName);
+            Assert.Equal("Osaka", s.Cell(2, 1).Format.FontName);
+        }
+    }
+    #endregion
 }
