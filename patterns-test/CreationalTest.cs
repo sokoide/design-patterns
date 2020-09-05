@@ -58,4 +58,16 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Singleton
+    public class SingletonTest
+    {
+        [Fact]
+        public void Sameinstance()
+        {
+            Singleton s = Singleton.Instance;
+            Assert.Equal(s.GetHashCode(), Singleton.Instance.GetHashCode());
+        }
+    }
+    #endregion
 }
