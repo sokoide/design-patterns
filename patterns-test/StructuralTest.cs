@@ -116,4 +116,16 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Proxy
+    public class ProxyTest
+    {
+        [Fact]
+        public void CircleProxyTest()
+        {
+            CircleProxy t = new CircleProxy();
+            Assert.Equal("Circle", t.Name());
+        }
+    }
+    #endregion
 }
