@@ -70,4 +70,46 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Builder
+    public class TextBuilderTest
+    {
+        private readonly TextBuilder t;
+        public TextBuilderTest()
+        {
+            t = new TextBuilder();
+        }
+        [Fact]
+        public void BuildTest()
+        {
+            t.AddTitle("A");
+            t.AddListItem(1, "item1");
+            t.AddTitle("B");
+            t.AddListItem(1, "item2");
+            t.AddListItem(2, "item2a");
+            t.AddListItem(2, "item2b");
+            Assert.Equal("=== A ===\n* item1\n=== B ===\n* item2\n** item2a\n** item2b\n", t.ToString());
+        }
+    }
+
+    public class MdBuilderTest
+    {
+        private readonly MdBuilder t;
+        public MdBuilderTest()
+        {
+            t = new MdBuilder();
+        }
+        [Fact]
+        public void BuildTest()
+        {
+            t.AddTitle("A");
+            t.AddListItem(1, "item1");
+            t.AddTitle("B");
+            t.AddListItem(1, "item2");
+            t.AddListItem(2, "item2a");
+            t.AddListItem(2, "item2b");
+            Assert.Equal("# A\n* item1\n# B\n* item2\n  * item2a\n  * item2b\n", t.ToString());
+        }
+    }
+    #endregion
 }
