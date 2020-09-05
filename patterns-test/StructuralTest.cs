@@ -77,4 +77,16 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Facade
+    public class FacadeTest
+    {
+        [Fact]
+        public void MakeTest()
+        {
+            ComplexShapeMaker t = new ComplexShapeMaker();
+            Assert.Equal("Circle-Rectangle", t.Make());
+        }
+    }
+    #endregion
 }
