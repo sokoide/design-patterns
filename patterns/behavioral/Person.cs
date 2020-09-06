@@ -24,5 +24,15 @@ namespace patterns
         {
             return next;
         }
+
+        public PersonMomento CreateSnapshot()
+        {
+            return new PersonMomento(Name);
+        }
+
+        public void RestoreSnapshot(PersonMomento momento)
+        {
+            Name = momento.Name;
+        }
     }
 }

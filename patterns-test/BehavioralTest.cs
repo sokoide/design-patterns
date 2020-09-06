@@ -173,8 +173,14 @@ namespace patterns_test
     public class Moment
     {
         [Fact]
-        public void TestMediator()
+        public void TestMoment()
         {
+            Person p = new Person("foo");
+            PersonMomento momento = p.CreateSnapshot();
+            p.Name = "bar";
+            Assert.Equal("bar", p.Name);
+            p.RestoreSnapshot(momento);
+            Assert.Equal("foo", p.Name);
         }
     }
     #endregion
