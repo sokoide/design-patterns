@@ -1,4 +1,3 @@
-using System;
 using patterns;
 using Xunit;
 
@@ -22,6 +21,23 @@ namespace patterns_test
 
             string got = l1.Resolve(level);
             Assert.Equal(want, got);
+        }
+    }
+    #endregion
+
+    #region Command
+    public class CommandTest
+    {
+        [Fact]
+        public void CommandsTest()
+        {
+            CommandList cl = new CommandList();
+            cl.Push(new Command("North"));
+            cl.Push(new Command("West"));
+            cl.Push(new Command("South"));
+            cl.Pop();
+            cl.Push(new Command("West"));
+            Assert.Equal("WestWestNorth", cl.Execute());
         }
     }
     #endregion
