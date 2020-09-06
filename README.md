@@ -18,6 +18,7 @@
   * Behavioral patterns
     * Chain of Responsibility
     * Command
+    * Interpreter
     * Iterator
     * Mediator
     * Momento

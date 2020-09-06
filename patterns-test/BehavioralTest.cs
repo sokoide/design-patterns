@@ -41,4 +41,94 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region Interpreter
+    public class InterpreterTest
+    {
+        [Fact]
+        public void TestTokenizer1()
+        {
+            Tokenizer t = new Tokenizer("12345");
+            Assert.Single(t.Tokens);
+            Assert.Equal("12345", t.Tokens[0].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[0].Type);
+        }
+
+        [Fact]
+        public void TestTokenizer2()
+        {
+            Tokenizer t = new Tokenizer("10+23*4");
+            Assert.Equal(5, t.Tokens.Count);
+            Assert.Equal("10", t.Tokens[0].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[0].Type);
+            Assert.Equal("+", t.Tokens[1].Value);
+            Assert.Equal(Token.TokenType.Plus, t.Tokens[1].Type);
+            Assert.Equal("*", t.Tokens[3].Value);
+            Assert.Equal(Token.TokenType.Multiply, t.Tokens[3].Type);
+            Assert.Equal("4", t.Tokens[4].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[4].Type);
+        }
+
+        [Fact]
+        public void TestTokenizer3()
+        {
+            Tokenizer t = new Tokenizer("10+23*456");
+            Assert.Equal(5, t.Tokens.Count);
+            Assert.Equal("456", t.Tokens[4].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[4].Type);
+        }
+
+        [Fact]
+        public void TestTokenizer4()
+        {
+            Tokenizer t = new Tokenizer("10+23*4-");
+            Assert.Equal(6, t.Tokens.Count);
+            Assert.Equal("10", t.Tokens[0].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[0].Type);
+            Assert.Equal("+", t.Tokens[1].Value);
+            Assert.Equal(Token.TokenType.Plus, t.Tokens[1].Type);
+            Assert.Equal("*", t.Tokens[3].Value);
+            Assert.Equal(Token.TokenType.Multiply, t.Tokens[3].Type);
+            Assert.Equal("4", t.Tokens[4].Value);
+            Assert.Equal(Token.TokenType.Number, t.Tokens[4].Type);
+            Assert.Equal("-", t.Tokens[5].Value);
+            Assert.Equal(Token.TokenType.Minus, t.Tokens[5].Type);
+        }
+
+        [Fact]
+        public void TestInterpreter1()
+        {
+            Context context = new Context("1+2");
+            ExprNode node = new ExprNode(context);
+            node.Parse();
+            Assert.Equal("[expr][mul][num]1+[mul][num]2", node.Value);
+        }
+        [Fact]
+        public void TestInterpreter2()
+        {
+            Context context = new Context("12+23*34");
+            ExprNode node = new ExprNode(context);
+            node.Parse();
+            Assert.Equal("[expr][mul][num]12+[mul][num]23*[num]34", node.Value);
+        }
+
+        [Fact]
+        public void TestInterpreter3()
+        {
+            Context context = new Context("12+23*34*45");
+            ExprNode node = new ExprNode(context);
+            node.Parse();
+            Assert.Equal("[expr][mul][num]12+[mul][num]23*[num]34*[num]45", node.Value);
+        }
+
+        [Fact]
+        public void TestInterpreter4()
+        {
+            Context context = new Context("12+23*34*45-99");
+            ExprNode node = new ExprNode(context);
+            node.Parse();
+            Assert.Equal("[expr][mul][num]12+[mul][num]23*[num]34*[num]45-[mul][num]99", node.Value);
+        }
+    }
+    #endregion
 }
