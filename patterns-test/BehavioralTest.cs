@@ -235,6 +235,26 @@ namespace patterns_test
         [Fact]
         public void TestStrategy()
         {
+            IStrategy s = new RoundRobinStrategy(3);
+            int matched = 0;
+            // try 100 times
+            for (int i = 1; i <= 100; i++)
+            {
+                if (s.NextPartition() == i % 3)
+                    matched++;
+            }
+            Assert.Equal(100, matched);
+
+            s = new RandomStrategy(3);
+            matched = 0;
+            // try 100 times
+            for (int i = 1; i <= 100; i++)
+            {
+                if (s.NextPartition() == i % 3)
+                    matched++;
+            }
+            Assert.NotEqual(100, matched);
+
         }
     }
     #endregion
