@@ -213,6 +213,18 @@ namespace patterns_test
         [Fact]
         public void TestState()
         {
+            StateContext ctx = new StateContext();
+            ctx.ChangeState(TitleState.Instance);
+
+            Assert.Equal("Title", ctx.GetState());
+            ctx.Do("startbutton");
+            Assert.Equal("Game", ctx.GetState());
+            ctx.Do("monster");
+            Assert.Equal("GameOver", ctx.GetState());
+            ctx.Do("startbutton");
+            Assert.Equal("GameOver", ctx.GetState());
+            ctx.Do("tick");
+            Assert.Equal("Title", ctx.GetState());
         }
     }
     #endregion
