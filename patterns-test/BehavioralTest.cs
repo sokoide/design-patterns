@@ -265,6 +265,8 @@ namespace patterns_test
         [Fact]
         public void TestTemplateMethod()
         {
+            Slime s = new Slime("Tom");
+            Assert.Equal("name:Tom, HP:4, MP:0", s.Show());
         }
     }
     #endregion
