@@ -277,6 +277,8 @@ namespace patterns_test
         [Fact]
         public void TestVisitor()
         {
+            // Tested in CompositeTest::VisitTest
+            Assert.True(true);
         }
     }
     #endregion
