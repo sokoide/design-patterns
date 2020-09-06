@@ -191,6 +191,18 @@ namespace patterns_test
         [Fact]
         public void TestObserver()
         {
+            Q q = new Q();
+            QClient qc = new QClient(q);
+            q.Publish("hello");
+            q.Publish("hi");
+            Assert.Equal("hellohi", qc.Messages);
+            q.Publish("bye");
+            Assert.Equal("hellohibye", qc.Messages);
+
+            // no more message after unsubscribe
+            qc.Unsubscribe();
+            Assert.Equal("hellohibye", qc.Messages);
+
         }
     }
     #endregion
