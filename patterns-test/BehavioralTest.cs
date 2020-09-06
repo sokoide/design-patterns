@@ -132,7 +132,7 @@ namespace patterns_test
     }
     #endregion
 
-    #region itelator
+    #region Itelator
     public class IteratorTest
     {
         [Fact]
@@ -150,6 +150,81 @@ namespace patterns_test
                 total++;
             }
             Assert.Equal(3, total);
+        }
+    }
+    #endregion
+
+    #region Mediator
+    public class MediatorTest
+    {
+        [Fact]
+        public void TestMediator()
+        {
+            Questionaire q = new Questionaire();
+            Assert.Equal("TrueTrueTrueTrue", q.Test());
+
+            q.c2.ColleagueEnabled(false);
+            Assert.Equal("TrueFalseTrueFalse", q.Test());
+        }
+    }
+    #endregion
+
+    #region Moment
+    public class Moment
+    {
+        [Fact]
+        public void TestMediator()
+        {
+        }
+    }
+    #endregion
+
+    #region Observer
+    public class ObserverTest
+    {
+        [Fact]
+        public void TestObserver()
+        {
+        }
+    }
+    #endregion
+
+    #region State
+    public class StateTest
+    {
+        [Fact]
+        public void TestState()
+        {
+        }
+    }
+    #endregion
+
+    #region Strategy
+    public class StrategyTest
+    {
+        [Fact]
+        public void TestStrategy()
+        {
+        }
+    }
+    #endregion
+
+    #region TemplateMethod
+    public class TemplateMethodTest
+    {
+        [Fact]
+        public void TestTemplateMethod()
+        {
+        }
+    }
+    #endregion
+
+    #region Visitor
+    public class VisitorTest
+    {
+        [Fact]
+        public void TestVisitor()
+        {
         }
     }
     #endregion
