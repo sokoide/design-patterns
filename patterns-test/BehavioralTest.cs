@@ -131,4 +131,26 @@ namespace patterns_test
         }
     }
     #endregion
+
+    #region itelator
+    public class IteratorTest
+    {
+        [Fact]
+        public void TestIterate()
+        {
+            Person p3 = new Person("P3");
+            Person p2 = new Person("P2", p3);
+            Person p1 = new Person("P1", p2);
+
+            int total = 1;
+            Person p = p1;
+            while (p.HasNext())
+            {
+                p = p.Next();
+                total++;
+            }
+            Assert.Equal(3, total);
+        }
+    }
+    #endregion
 }
