@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Prototype Pattern** using the **Go** language. You will learn how to create new instances by "copying (cloning)" an existing instance.
 
+## What This Example Shows
+
+- Cloning objects through a common `Clone()` interface instead of constructors
+- Deep‑copying a recursive structure (folders containing files/folders)
+
+## Quick Start
+
+In the `prototype-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 📄 Scenario: File System Duplication
 
 In a file system, you might want to copy an entire folder structure (including files and subfolders within it).

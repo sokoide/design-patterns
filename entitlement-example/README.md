@@ -2,6 +2,20 @@
 
 This project demonstrates the relationship between "Adapter and Infrastructure" in Clean Architecture, specifically an implementation example of the **Gateway Pattern** (an Adapter that conceals multiple data sources).
 
+## What This Example Shows
+
+- Using a Gateway (`InfraGateway`) to orchestrate multiple data sources behind one domain interface
+- Implementing cache look‑aside / read‑through behavior without leaking infrastructure into `usecase`
+- Swapping or extending data sources by changing only wiring in `main.go`
+
+## Quick Start
+
+In the `entitlement-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏗 Architecture Diagram
 
 The dependencies are organized as follows:

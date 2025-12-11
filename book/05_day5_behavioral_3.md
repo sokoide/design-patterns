@@ -200,8 +200,8 @@ This is very powerful when adding processing to data with complex nested structu
 
 ### 🧪 Hands-on
 
-Let's look at `visitor-example` (zoo example).
-Create a new Visitor (e.g., `FeedVisitor`) and try adding functionality without modifying existing animal classes.
+Let's look at `visitor-example` (shape area calculator example).
+Create a new Visitor (e.g., `PerimeterCalculator`) and add a new operation without modifying the existing shape structs.
 
 ### ❓ Quiz
 

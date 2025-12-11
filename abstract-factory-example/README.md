@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Abstract Factory Pattern** using the **Go** language. You will learn how to create a family of related objects without specifying their concrete classes.
 
+## What This Example Shows
+
+- Creating a *family* of related products (chair + sofa) via a single factory
+- Keeping the client (`usecase`) independent of concrete styles; only `main.go` selects which factory to inject
+
+## Quick Start
+
+In the `abstract-factory-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🛋 Scenario: Furniture Sets (Modern vs. Victorian)
 
 When buying furniture, you might want a matching set of a "chair" and a "sofa" that fits a specific style (e.g., Modern, Victorian).

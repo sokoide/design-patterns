@@ -5,7 +5,7 @@ import "fmt"
 type IOtp interface {
 	GenRandomOTP(int) string
 	SaveOTPCache(string)
-	GetMessage(string)
+	GetMessage(string) string
 	SendNotification(string) error
 }
 

@@ -5,6 +5,12 @@ import (
 	"fmt"
 )
 
+// Ensure implementations
+var (
+	_ domain.Computer = (*Mac)(nil)
+	_ domain.Computer = (*WindowsAdapter)(nil)
+)
+
 // Client: Mac
 type Mac struct{}
 

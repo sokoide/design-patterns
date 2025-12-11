@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Decorator Pattern** using the **Go** language. You will learn a technique to dynamically add functionality (behavior) to an existing object without modifying it.
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `decorator-example` directory:
+
+```bash
+go run main.go
+```
+
 ## ☕ Scenario: Coffee Ordering System
 
 This is a system where you can add various toppings (Mocha, Whip, Soy) to a base coffee (Espresso, HouseBlend).
@@ -95,6 +108,3 @@ func (m *Mocha) GetCost() float64 {
 ```bash
 go run main.go
 ```
-
-```
-```diff

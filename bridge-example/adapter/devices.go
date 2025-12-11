@@ -26,6 +26,10 @@ type Mac struct {
 
 func (m *Mac) Print() {
 	fmt.Println("Print request for Mac")
+	if m.printer == nil {
+		fmt.Println("  [WARN] printer is not set")
+		return
+	}
 	m.printer.PrintFile()
 }
 
@@ -40,6 +44,10 @@ type Windows struct {
 
 func (w *Windows) Print() {
 	fmt.Println("Print request for Windows")
+	if w.printer == nil {
+		fmt.Println("  [WARN] printer is not set")
+		return
+	}
 	w.printer.PrintFile()
 }
 

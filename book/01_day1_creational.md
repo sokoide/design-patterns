@@ -177,12 +177,14 @@ classDiagram
 
 ### 🐹 Go Implementation Tips
 
-In `abstract-factory-example`, this can be applied when switching database types (e.g., PostgreSQL vs. MySQL).
-Imagine a `DaoFactory` interface with methods like `CreateUserDao()` and `CreateItemDao()`.
+In `abstract-factory-example`, the `FurnitureFactory` interface creates a **matching set** of products (`Chair` and `Sofa`) for a given style (Modern or Victorian).
+The client (`FurnishingService`) depends only on the factory and product interfaces, so it never needs to know which style is being used.
+This makes it easy to add a new style by adding a new concrete factory and products, without touching the client.
 
 ### 🧪 Hands-on
 
-In `abstract-factory-example`, add a new factory (e.g., a `MockFactory` for the `RdbFactory`) and use DI (Dependency Injection) in your test code.
+In `abstract-factory-example`, add a new style (e.g., `ArtDecoChair`, `ArtDecoSofa`, and an `ArtDecoFactory`).
+Then inject that factory in `main.go` (or a small test) and confirm that the client code works without modification.
 
 ### ❓ Quiz
 

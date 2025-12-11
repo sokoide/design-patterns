@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Visitor Pattern** using the **Go** language. You will learn how to separate a data structure from the operations (processing) performed on it.
 
+## What This Example Shows
+
+- Adding new operations (visitors) without modifying shape types
+- Using double dispatch (`Accept` → `VisitForX`) to route by concrete type
+
+## Quick Start
+
+In the `visitor-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 📐 Scenario: Calculating the Area of Shapes
 
 We have shape classes like "Square," "Circle," and "Rectangle."

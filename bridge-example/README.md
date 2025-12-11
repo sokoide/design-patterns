@@ -2,6 +2,20 @@
 
 This project is an educational sample code that implements the **Bridge Pattern** using the **Go** language. You will learn how to separate the "functional class hierarchy" from the "implementation class hierarchy," allowing each to be extended independently.
 
+## What This Example Shows
+
+- Decoupling “abstraction” (computers) from “implementation” (printers)
+- Adding new computers or printers independently without class explosion
+- Switching printer implementations at runtime via `SetPrinter`
+
+## Quick Start
+
+In the `bridge-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🖨 Scenario: Computers and Printers
 
 We have computers like "Mac" and "Windows" (the functional/abstraction part) and printers like "Epson" and "HP" (the implementation part).

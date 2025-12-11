@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Template Method Pattern** using the **Go** language. You will learn how to define the "framework (template)" of an algorithm in a parent class (or common structure) and delegate some of the specific steps to subclasses (or implementations).
 
+## What This Example Shows
+
+- Keeping the OTP flow fixed in `Otp.GenAndSendOTP`
+- Swapping only specific steps via injected implementations (`Sms`, `Email`)
+
+## Quick Start
+
+In the `template-method-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🔐 Scenario: OTP (One Time Password) Sending Flow
 
 The procedure for sending an OTP to a user is fixed in the following steps:

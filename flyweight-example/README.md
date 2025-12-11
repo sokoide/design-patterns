@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Flyweight Pattern** using the **Go** language. You will learn how to reduce memory usage by sharing common state among a large number of objects.
 
+## What This Example Shows
+
+- Splitting intrinsic state (`TreeType`) from extrinsic state (`Tree` position)
+- Sharing/caching flyweights in a factory to reduce memory
+
+## Quick Start
+
+In the `flyweight-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🌲 Scenario: Forest Rendering
 
 Consider the case of rendering tens of thousands of "trees" in a game.

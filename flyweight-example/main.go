@@ -12,7 +12,7 @@ func main() {
 	factory := adapter.GetFactory()
 
 	// Creating a forest
-	rees := []*domain.Tree{
+	trees := []*domain.Tree{
 		{X: 1, Y: 1, Type: factory.GetTreeType("Oak", "Green", "Rough")},
 		{X: 2, Y: 3, Type: factory.GetTreeType("Oak", "Green", "Rough")}, // Reused
 		{X: 5, Y: 1, Type: factory.GetTreeType("Pine", "DarkGreen", "Smooth")},

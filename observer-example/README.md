@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Observer Pattern** using the **Go** language. You will learn a mechanism to notify multiple listeners of state changes (events) in a loosely coupled manner.
 
+## What This Example Shows
+
+- Notifying multiple observers when a subject’s state changes
+- Adding/removing observers without changing the subject logic
+
+## Quick Start
+
+In the `observer-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 📡 Scenario: Market Price Monitoring System
 
 When the price of something like "Bitcoin" changes, a notification is automatically sent to all registered destinations (Email, Slack, logs). The notifier (Subject) does not know the specific implementation of the notified parties (Observers).

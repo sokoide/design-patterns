@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Memento Pattern** using the **Go** language. You will learn how to save and later restore the internal state of an object without violating its implementation details (encapsulation).
 
+## What This Example Shows
+
+- Capturing editor state as immutable mementos
+- Restoring previous states without exposing internal details
+
+## Quick Start
+
+In the `memento-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 📝 Scenario: Text Editor's Undo Feature
 
 When writing in a text editor, you want to be able to revert to a "past state" at any time.

@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Command Pattern** using the **Go** language. Taking the "input" and "Undo" functions of a text editor as an example, you will learn how to separate the invocation of a process (Invoker) from its execution details (Command/Receiver).
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `command-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 📝 Scenario: Text Editor with Undo Functionality
 
 Instead of simple string concatenation, all operations are encapsulated as "command objects," making it easy to manage the operation history (stack) and perform Undo operations.

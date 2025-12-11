@@ -178,12 +178,14 @@ classDiagram
 
 ### 🐹 Go 実装の極意
 
-`abstract-factory-example` では、データベースの種類（PostgreSQL vs MySQL）などを切り替える際に応用できます。
-`DaoFactory` インターフェースがあり、`CreateUserDao()`, `CreateItemDao()` などのメソッドを持つイメージです。
+`abstract-factory-example` では、`FurnitureFactory` が **スタイルに合った製品セット**（`Chair` と `Sofa`）を生成します（Modern / Victorian など）。
+クライアント（`FurnishingService`）はファクトリーと製品のインターフェースだけに依存するため、具体的なスタイルの違いを知る必要がありません。
+そのため、新しいスタイルを追加してもクライアントを一切変更せずに拡張できます。
 
 ### 🧪 ハンズオン
 
-`abstract-factory-example` に新しいファクトリー（例: `RdbFactory` に対する `MockFactory`）を追加し、テストコードで DI（依存性注入）してみましょう。
+`abstract-factory-example` に新しいスタイル（例: `ArtDecoChair`, `ArtDecoSofa`, `ArtDecoFactory`）を追加してみましょう。
+`main.go`（または小さなテスト）でそのファクトリーを注入し、既存のクライアントコードを変えずに動作することを確認してください。
 
 ### ❓ クイズ
 

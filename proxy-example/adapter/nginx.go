@@ -1,8 +1,10 @@
 package adapter
 
-import (
-	"fmt"
-	"proxy-example/domain"
+import "proxy-example/domain"
+
+var (
+	_ domain.Server = (*AppServer)(nil)
+	_ domain.Server = (*Nginx)(nil)
 )
 
 type AppServer struct{}

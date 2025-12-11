@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Builder Pattern** using the **Go** language. You will learn how to hide the complex object construction process and create different representations (e.g., a normal house, an igloo) using the same construction steps.
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `builder-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏠 Scenario: House Construction
 
 Building a house requires many steps, such as "installing windows," "installing a door," "building floors," and so on.

@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **State Pattern** using the **Go** language. Following the structure of Clean Architecture, it separates the logic of state transitions.
 
+## What This Example Shows
+
+- Encapsulating state‑specific behavior in separate state objects
+- Delegating transitions from the context to the current state
+
+## Quick Start
+
+In the `state-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🚪 Scenario: Door Opening and Closing System
 
 A door has three states, and its state transitions through two actions (A and B).

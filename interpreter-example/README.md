@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Interpreter Pattern** using the **Go** language. You will learn how to define a simple language or grammar and create a class structure to interpret and execute it.
 
+## What This Example Shows
+
+- Building an expression tree from small objects (AST)
+- Evaluating the tree with `Interpret(context)` using terminal and non‑terminal expressions
+
+## Quick Start
+
+In the `interpreter-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🗣 Scenario: Simple Logical Expression Evaluation
 
 We will create a simple interpreter that defines rules such as "Robert is a male" and "Julie is a married woman," and determines whether the input text meets those conditions.

@@ -2,6 +2,20 @@
 
 This project is an educational sample code that implements the **Adapter Pattern** using the **Go** language. You will learn how to connect classes with incompatible interfaces and reuse existing code without modification.
 
+## What This Example Shows
+
+- Converting an incompatible interface (USB) into the expected one (Lightning)
+- Reusing an existing implementation without modifying it
+- Implementing the adapter via composition/delegation, which is idiomatic in Go
+
+## Quick Start
+
+In the `adapter-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🔌 Scenario: Lightning Connector and USB Port
 
 A Mac user (client) wants to plug in a "Lightning connector."

@@ -12,11 +12,14 @@ func main() {
 	fmt.Println("\n[Client] Ordering Modern Furniture:")
 	modernFactory := &adapter.ModernFactory{}
 	service1 := usecase.NewFurnishingService(modernFactory)
-	service1.FurnishRoom()
+	if err := service1.FurnishRoom(); err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
 
 	fmt.Println("\n[Client] Ordering Victorian Furniture:")
 	victorianFactory := &adapter.VictorianFactory{}
 	service2 := usecase.NewFurnishingService(victorianFactory)
-	service2.FurnishRoom()
+	if err := service2.FurnishRoom(); err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
 }
-

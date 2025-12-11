@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Proxy Pattern** using the **Go** language. You will learn how to place a "proxy" to control access to an object.
 
+## What This Example Shows
+
+- Using a proxy (`Nginx`) to control access to a real server
+- Adding rate limiting without changing the application server
+
+## Quick Start
+
+In the `proxy-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🛡 Scenario: Rate Limiting with Nginx
 
 When sending requests to a web server (Application), instead of accessing it directly, we go through Nginx (a web server and reverse proxy).

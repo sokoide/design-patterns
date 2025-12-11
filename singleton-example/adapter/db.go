@@ -12,6 +12,8 @@ func (db *singletonDatabase) Connect() {
 	fmt.Println("Connected to the database instance.")
 }
 
+var _ domain.Database = (*singletonDatabase)(nil)
+
 var instance *singletonDatabase
 var once sync.Once
 

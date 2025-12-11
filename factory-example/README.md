@@ -3,6 +3,19 @@
 This project is a sample to explain the **Factory Method Pattern** in the **Go** language.
 Using a "pizza shop" as an example, you will experience a mechanism to flexibly switch ingredients and toppings by separating concrete classes from business logic.
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `factory-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🍕 Scenario: Pizza Shop Order Flow
 
 A pizza shop offers multiple types of pizzas such as "Plain," "Veggie," and "Japanese-style."

@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Mediator Pattern** using the **Go** language. It resolves complex dependencies (spaghetti code) by having objects coordinate through a mediator, rather than communicating directly with each other.
 
+## What This Example Shows
+
+- Centralizing coordination in a mediator (`StationManager`)
+- Preventing direct train‑to‑train coupling and managing arrival order
+
+## Quick Start
+
+In the `mediator-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🚉 Scenario: Station Platform Management
 
 Multiple trains (passenger trains, freight trains) arrive at a station platform.

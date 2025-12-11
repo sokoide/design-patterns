@@ -2,6 +2,20 @@
 
 このプロジェクトは、Clean Architectureにおける「AdapterとInfrastructure」の関係、特に**Gateway Pattern**（複数のデータソースを隠蔽するAdapter）の実装例を示しています。
 
+## この例で学べること
+
+- Gateway（`InfraGateway`）で複数データソースを 1 つの Domain インターフェースにまとめる設計
+- キャッシュ戦略（look‑aside/read‑through）を `usecase` に漏らさず実現する流れ
+- データソースの追加/差し替えは `main.go` の組み立て変更だけで済むこと
+
+## すぐ試す
+
+`entitlement-example` ディレクトリで実行します。
+
+```bash
+go run main.go
+```
+
 ## 🏗 アーキテクチャ構成
 
 依存関係は以下の通り整理されています。

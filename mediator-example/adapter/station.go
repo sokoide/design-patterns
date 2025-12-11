@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"fmt"
 	"mediator-example/domain"
 	"sync"
 )
@@ -32,13 +31,18 @@ func (s *StationManager) CanArrive(t domain.Train) bool {
 
 func (s *StationManager) NotifyAboutDeparture() {
 	s.lock.Lock()
-	defer s.lock.Unlock()
-	if !s.isPlatformFree {
-		s.isPlatformFree = true
+	// Free the platform for the next train.
+	s.isPlatformFree = true
+	if len(s.trainQueue) == 0 {
+		s.lock.Unlock()
+		return
 	}
-	if len(s.trainQueue) > 0 {
-		firstTrain := s.trainQueue[0]
-		s.trainQueue = s.trainQueue[1:]
-		firstTrain.PermitArrival()
-	}
+	// Dequeue next train and reserve the platform for it.
+	firstTrain := s.trainQueue[0]
+	s.trainQueue = s.trainQueue[1:]
+	s.isPlatformFree = false
+	s.lock.Unlock()
+
+	// Call out to the train without holding the lock to avoid deadlocks.
+	firstTrain.PermitArrival()
 }

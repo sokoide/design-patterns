@@ -4,6 +4,19 @@ This project is an implementation example of the very popular **Functional Optio
 You will learn a technique to flexibly and readably set only the necessary parameters during struct initialization (`NewServer`), while maintaining default values.
 *Note: This is not one of the GoF design patterns, but it is a very important idiom in the Go language.*
 
+## What This Example Shows
+
+- Building a flexible constructor (`NewServer`) with sensible defaults
+- Overriding only the needed settings via option functions (e.g., `WithPort`, `WithTimeout`)
+
+## Quick Start
+
+In the `functional-options-example` directory:
+
+```bash
+go run main.go
+```
+
 ## ⚙️ Scenario: Server Configuration
 
 When starting a server, there are many configuration items such as "port number," "timeout duration," and "maximum number of connections."

@@ -10,6 +10,10 @@ type PassengerTrain struct {
 }
 
 func (g *PassengerTrain) Arrive() {
+	if g.Mediator == nil {
+		fmt.Println("PassengerTrain: No mediator set")
+		return
+	}
 	if !g.Mediator.CanArrive(g) {
 		fmt.Println("PassengerTrain: Blocked, waiting")
 		return
@@ -19,7 +23,9 @@ func (g *PassengerTrain) Arrive() {
 
 func (g *PassengerTrain) Depart() {
 	fmt.Println("PassengerTrain: Leaving")
-	g.Mediator.NotifyAboutDeparture()
+	if g.Mediator != nil {
+		g.Mediator.NotifyAboutDeparture()
+	}
 }
 
 func (g *PassengerTrain) PermitArrival() {
@@ -32,6 +38,10 @@ type FreightTrain struct {
 }
 
 func (g *FreightTrain) Arrive() {
+	if g.Mediator == nil {
+		fmt.Println("FreightTrain: No mediator set")
+		return
+	}
 	if !g.Mediator.CanArrive(g) {
 		fmt.Println("FreightTrain: Blocked, waiting")
 		return
@@ -41,7 +51,9 @@ func (g *FreightTrain) Arrive() {
 
 func (g *FreightTrain) Depart() {
 	fmt.Println("FreightTrain: Leaving")
-	g.Mediator.NotifyAboutDeparture()
+	if g.Mediator != nil {
+		g.Mediator.NotifyAboutDeparture()
+	}
 }
 
 func (g *FreightTrain) PermitArrival() {

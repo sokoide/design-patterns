@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Singleton Pattern** using the **Go** language. You will learn how to ensure that there is "only one instance" of a class throughout the application.
 
+## What This Example Shows
+
+- Ensuring only one database instance exists via `sync.Once`
+- Providing a global access point without repeated initialization
+
+## Quick Start
+
+In the `singleton-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🗄 Scenario: Database Connection Instance
 
 Creating numerous database connection objects within an application can lead to resource exhaustion (e.g., number of connections).

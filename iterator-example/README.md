@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Iterator Pattern** using the **Go** language. You will learn how to access the elements of a collection sequentially without exposing its underlying representation.
 
+## What This Example Shows
+
+- Traversing a collection without exposing its internal slice
+- Implementing a simple iterator with `HasNext` / `GetNext`
+
+## Quick Start
+
+In the `iterator-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🔄 Scenario: Traversing a User List
 
 We have a `UserCollection` that holds a list of `User`s.

@@ -37,24 +37,34 @@ type AreaCalculator struct {
 }
 
 func (a *AreaCalculator) VisitForSquare(s domain.Shape) {
-	// Type assertion
-	sq := s.(*Square)
+	sq, ok := s.(*Square)
+	if !ok {
+		fmt.Printf("[WARN] VisitForSquare called with %T\n", s)
+		return
+	}
 	fmt.Printf("Calculating area for square. Side: %d\n", sq.Side)
 	a.area = sq.Side * sq.Side
 	fmt.Printf("Area: %d\n", a.area)
 }
 
 func (a *AreaCalculator) VisitForCircle(s domain.Shape) {
-	ci := s.(*Circle)
+	ci, ok := s.(*Circle)
+	if !ok {
+		fmt.Printf("[WARN] VisitForCircle called with %T\n", s)
+		return
+	}
 	fmt.Printf("Calculating area for circle. Radius: %d\n", ci.Radius)
 	a.area = 3 * ci.Radius * ci.Radius // approx pi
 	fmt.Printf("Area: %d\n", a.area)
 }
 
 func (a *AreaCalculator) VisitForRectangle(s domain.Shape) {
-	r := s.(*Rectangle)
+	r, ok := s.(*Rectangle)
+	if !ok {
+		fmt.Printf("[WARN] VisitForRectangle called with %T\n", s)
+		return
+	}
 	fmt.Printf("Calculating area for rectangle.\n")
 	a.area = r.L * r.B
 	fmt.Printf("Area: %d\n", a.area)
 }
-

@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Chain of Responsibility Pattern** using the **Go** language. You will learn how to pass a request along a chain of objects until a handler that can process it is found.
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `chain-of-responsibility-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏥 Scenario: Hospital Reception Flow
 
 Consider the flow when a patient arrives at a hospital:

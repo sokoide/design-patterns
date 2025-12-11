@@ -200,8 +200,8 @@ AST（抽象構文木）の解析や、Kubernetes のマニフェスト検証な
 
 ### 🧪 ハンズオン
 
-`visitor-example`（動物園の例）を見てみましょう。
-新しい Visitor（例: `FeedVisitor` - 餌やり）を作成し、既存の動物クラスを変更せずに機能追加できるか試してください。
+`visitor-example`（図形の面積計算の例）を見てみましょう。
+新しい Visitor（例: `PerimeterCalculator` - 周長計算）を作成し、既存の図形クラスを変更せずに機能追加できるか試してください。
 
 ### ❓ クイズ
 

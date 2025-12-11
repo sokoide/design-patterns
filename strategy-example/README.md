@@ -2,6 +2,20 @@
 
 This project is an educational sample code that implements the **Strategy Pattern** using the **Go** language. The design incorporates the principles of **Clean Architecture** to clearly separate dependencies.
 
+## What This Example Shows
+
+- Swapping payment and shipping behaviors at runtime by injecting different strategies
+- Keeping the **“how”** (concrete payment/shipping methods) inside `adapter`, while the `usecase` keeps the **“when/what”** (order flow and validation) independent of concretes
+- Choosing which strategy to use happens in `main.go` (composition root), not in `usecase`
+
+## Quick Start
+
+In the `strategy-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏗 Architecture
 
 ```mermaid

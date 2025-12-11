@@ -3,6 +3,20 @@
 This project is an educational sample code that implements the **Facade Pattern** using the **Go** language.
 It demonstrates how to hide the complex operational procedures of numerous subsystems (lighting, audio, projector, etc.) behind a single interface (`SmartHomeFacade`), making them easy for clients to use.
 
+## What This Example Shows
+
+- Encapsulating multiple subsystems behind a single façade (`SmartHomeFacade`)
+- Letting clients trigger a complex workflow with one simple method call
+- Wiring the façade and subsystems together in `main.go`
+
+## Quick Start
+
+In the `facade-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏠 Scenario: Smart Home Theater Mode
 
 When watching a movie, users do not want to perform the following operations one by one:

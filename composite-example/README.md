@@ -2,6 +2,19 @@
 
 This project is an educational sample code that implements the **Composite Pattern** using the **Go** language. You will learn how to treat parts and wholes uniformly to handle recursive structures (tree structures).
 
+## What This Example Shows
+
+- Demonstrates the core intent of the pattern in a small Go example
+- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+
+## Quick Start
+
+In the `composite-example` directory:
+
+```bash
+go run main.go
+```
+
 ## 🏢 Scenario: Organization Chart
 
 In a company's organization chart, employees include "regular employees (Developer, Designer)" and "managers (Manager)."
