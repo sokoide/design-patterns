@@ -1,72 +1,103 @@
 # Go Design Patterns (Clean Architecture)
 
-このリポジトリは、GoF (Gang of Four) のデザインパターンを **Go 言語** と **Clean Architecture** の原則に基づいて実装したサンプル集です。
-ビジネスロジック（Usecase）と実装詳細（Adapter）を分離し、疎結合な設計を行う方法を学ぶことができます。
+このリポジトリは、GoF (Gang of Four) のデザインパターンを **Go 言語** で実装したサンプル集です。  
+各例は Clean Architecture の考え方に沿って、ビジネスロジックと実装詳細を分離した構成になっています。
 
-詳しく学ぶには、[book を参照してください。](./book/00_introduction_ja.md)
+- 英語版 README: `README.md`
+- 詳細解説: `book/00_introduction_ja.md`
 
-## 📂 プロジェクト構成
+## 目的
 
-各パターンは独立したディレクトリ（Go モジュール）として管理されています。
+- GoF パターンの意図と使いどころを、Go の型/インターフェース設計に落とし込んで理解する
+- Clean Architecture の層分離（`domain` / `usecase` / `adapter`）と依存性注入（DI）の流れを体感する
+
+## 使い方
+
+### 個別の例を実行
+
+各 `*-example` ディレクトリは独立した Go モジュールです。ディレクトリへ移動して実行します。
+
+```bash
+# 例: Factory Method パターンの実行
+cd factory-example
+go run main.go
+```
+
+### すべての例をまとめて実行
+
+リポジトリ直下で以下を実行すると、全モジュールを順番に `go run` します。
+
+```bash
+make run
+```
+
+### テスト
+
+特定の例、またはリポジトリ全体に対して Go 標準のテストを実行できます。
+
+```bash
+cd strategy-example
+go test ./...
+
+# ルートから全例まとめて
+go test ./...
+```
+
+## ディレクトリ構成（共通）
+
+各例は Clean Architecture を意識して、概ね次の構成を取ります。
+
+- `domain/`: 依存のないドメイン層。ドメインモデルとインターフェース（契約）を定義します。
+- `usecase/`: アプリケーション層。`domain` のインターフェースを使ってユースケースを記述します。
+- `adapter/`: 具体実装層。外部 I/O、アルゴリズム、リポジトリ等の実装が入ります。
+- `main.go`: エントリーポイント。依存性を組み立てて実行します。
+
+## パターン一覧
 
 ### 1. 生成に関するパターン (Creational Patterns)
 
 オブジェクトの生成プロセスを柔軟にするためのパターンです。
 
-- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): 関連する一連のインスタンスを、具体的なクラスを指定せずに生成します。
-- [**Builder**](./builder-example) (`builder-example`): 複雑なインスタンスの生成過程を隠蔽し、同じ生成過程で異なる表現を作ります。
-- [**Factory Method**](./factory-example) (`factory-example`): インスタンス生成をサブクラス（または実装）に任せます。
-- [**Prototype**](./prototype-example) (`prototype-example`): 原型となるインスタンスをコピー（クローン）して新しいインスタンスを作ります。
-- [**Singleton**](./singleton-example) (`singleton-example`): インスタンスが一つしか存在しないことを保証します。
+- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): 関連する一連の生成を、具体型に依存せず切り替えられるようにします。
+- [**Builder**](./builder-example) (`builder-example`): 複雑な生成手順を分離し、同じ手順で異なる表現を構築します。
+- [**Factory Method**](./factory-example) (`factory-example`): 生成の責務をインターフェース/実装側へ委ね、呼び出し側の依存を減らします。
+- [**Prototype**](./prototype-example) (`prototype-example`): 既存インスタンスを複製して新しいインスタンスを作ります。
+- [**Singleton**](./singleton-example) (`singleton-example`): インスタンスが一つだけになるよう管理します。
 
 ### 2. 構造に関するパターン (Structural Patterns)
 
 クラスやオブジェクトを組み合わせてより大きな構造を作るパターンです。
 
-- [**Adapter**](./adapter-example) (`adapter-example`): 互換性のないインターフェースを持つクラス同士をつなぎ合わせます。
-- [**Bridge**](./bridge-example) (`bridge-example`): 機能のクラス階層と実装のクラス階層を分離して、それぞれ独立に拡張できるようにします。
-- [**Composite**](./composite-example) (`composite-example`): 部分と全体を同一視して、再帰的な構造（ツリー構造）を作ります。
-- [**Decorator**](./decorator-example) (`decorator-example`): オブジェクトに動的に責任（機能）を追加します。
-- [**Facade**](./facade-example) (`facade-example`): 複雑なシステムに対するシンプルな窓口（インターフェース）を提供します。
-- [**Flyweight**](./flyweight-example) (`flyweight-example`): 多数のインスタンスを効率よく扱うために、インスタンスを共有します。
-- [**Proxy**](./proxy-example) (`proxy-example`): 本人（オブジェクト）の代わりに代理人が処理を行います（アクセス制御や遅延初期化など）。
+- [**Adapter**](./adapter-example) (`adapter-example`): 互換性のないインターフェース同士をつなぎます。
+- [**Bridge**](./bridge-example) (`bridge-example`): 抽象（利用側）と実装（提供側）を分離し、独立に拡張できるようにします。
+- [**Composite**](./composite-example) (`composite-example`): 部分と全体を同一視し、木構造を同じ操作で扱えるようにします。
+- [**Decorator**](./decorator-example) (`decorator-example`): 既存オブジェクトに機能を動的に重ねます。
+- [**Facade**](./facade-example) (`facade-example`): 複雑なサブシステムに対して単純な窓口を提供します。
+- [**Flyweight**](./flyweight-example) (`flyweight-example`): 共有により多数のインスタンスを効率よく扱います。
+- [**Proxy**](./proxy-example) (`proxy-example`): 本体の代わりに代理が処理し、アクセス制御や遅延初期化を行います。
 
 ### 3. 振る舞いに関するパターン (Behavioral Patterns)
 
 オブジェクト間の責任分担やアルゴリズムの抽象化に関するパターンです。
 
-- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): 要求を処理できるオブジェクトが見つかるまで、チェーン状につないだオブジェクトを順に渡していきます。
-- [**Command**](./command-example) (`command-example`): 要求をオブジェクトとしてカプセル化し、履歴管理やアンドゥなどを可能にします。
-- [**Interpreter**](./interpreter-example) (`interpreter-example`): 文法規則をクラスで表現し、言語を解釈・実行します。
-- [**Iterator**](./iterator-example) (`iterator-example`): 集合体の内部構造を露出させずに、要素を順に走査します。
-- [**Mediator**](./mediator-example) (`mediator-example`): 複数のオブジェクト間の相互作用を仲介者（Mediator）に集約し、複雑な依存関係を整理します。
-- [**Memento**](./memento-example) (`memento-example`): オブジェクトの状態を保存し、後でその状態に戻せるようにします。
-- [**Observer**](./observer-example) (`observer-example`): オブジェクトの状態変化を、依存している他のオブジェクトに通知します。
-- [**State**](./state-example) (`state-example`): オブジェクトの内部状態が変化したときに、振る舞いを変えるようにします。
-- [**Strategy**](./strategy-example) (`strategy-example`): アルゴリズムを交換可能にします。
-- [**Template Method**](./template-method-example) (`template-method-example`): 処理の枠組みを親クラス（または共通構造）で定め、具体的な処理をサブクラス（または実装）に任せます。
-- [**Visitor**](./visitor-example) (`visitor-example`): データ構造と処理を分離します。データ構造を変更せずに新しい処理を追加できます。
+- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): 処理可能なハンドラが見つかるまで要求を連鎖的に渡します。
+- [**Command**](./command-example) (`command-example`): 操作をオブジェクト化し、履歴管理や取り消しを可能にします。
+- [**Interpreter**](./interpreter-example) (`interpreter-example`): 文法規則を構造化して表現し、解釈・実行します。
+- [**Iterator**](./iterator-example) (`iterator-example`): 内部構造を隠したまま要素を順に走査します。
+- [**Mediator**](./mediator-example) (`mediator-example`): 相互作用を仲介役に集約し、依存関係を整理します。
+- [**Memento**](./memento-example) (`memento-example`): 状態をスナップショットとして保存し、後で復元できます。
+- [**Observer**](./observer-example) (`observer-example`): 状態変化を購読者へ通知します。
+- [**State**](./state-example) (`state-example`): 状態の切り替えで振る舞いを変えます。
+- [**Strategy**](./strategy-example) (`strategy-example`): アルゴリズムを差し替え可能にします。
+- [**Template Method**](./template-method-example) (`template-method-example`): 処理の骨格を共通化し、差分だけを実装側に委ねます。
+- [**Visitor**](./visitor-example) (`visitor-example`): データ構造と処理を分離し、構造を変えずに新しい処理を追加します。
 
 ### その他のパターン
 
-- [**Functional Options**](./functional-options-example): Go 言語特有の、柔軟な構造体初期化パターン。
-- [**Entitlement (Gateway)**](./entitlement-example): Clean Architecture に基づいた権限管理の例。Gateway (=Adapter)パターンを用いて、外部リソース（AD/Cache）へのアクセスを抽象化しています。
+- [**Functional Options**](./functional-options-example): Go でよく使われる柔軟な初期化パターン。
+- [**Entitlement (Gateway)**](./entitlement-example): Clean Architecture に基づく権限管理の例。Gateway（= Adapter）で外部リソース（AD/Cache）アクセスを抽象化します。
 
-## 🏗 共通アーキテクチャ構成
+## 備考
 
-各ディレクトリ内は、Clean Architecture を意識した以下の構成になっています。
-
-- **`domain/`**: ビジネスルールの核心。インターフェースやドメインモデルを定義します。外部ライブラリには依存しません。
-- **`usecase/`**: アプリケーション固有のビジネスロジック。`domain`のインターフェースを使って処理を記述します。
-- **`adapter/`**: インターフェースの実装（Concrete Class）。DB アクセス、API クライアント、具体的なアルゴリズムなどがここに含まれます。
-- **`main.go`**: アプリケーションのエントリーポイント。依存性の注入（DI）を行い、各コンポーネントを組み立てて実行します。
-
-## 🚀 実行方法
-
-各ディレクトリに移動して `go run main.go` を実行してください。
-
-```bash
-# 例: Factory Methodパターンの実行
-cd factory-example
-go run main.go
-```
+- 各例は学習用の最小構成です。実運用では要件に応じて設計を調整してください。
+- 追加の背景や図解は `book/` を参照してください。

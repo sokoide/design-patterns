@@ -2,11 +2,59 @@
 
 [日本語版はこちら](./README_ja.md)
 
-This repository is a collection of Gang of Four design pattern samples built with **Go** using Clean Architecture principles. It helps you learn how to separate business logic (Usecase) from implementation details (Adapter) and keep designs loosely coupled.
+This repository is a collection of Gang of Four design pattern samples implemented in **Go**.  
+Each example follows Clean Architecture ideas, separating business logic from implementation details.
 
-See [the book](./book/00_introduction.md) for a deeper explanation.
+- Japanese README: `README_ja.md`
+- Detailed explanation: `book/00_introduction.md`
 
-## 📂 Project Structure
+## Goals
+
+- Understand the intent and use cases of GoF patterns through Go-style type/interface design
+- Learn Clean Architecture layering (`domain` / `usecase` / `adapter`) and dependency injection (DI) by example
+
+## Usage
+
+### Run a single example
+
+Each `*-example` directory is an independent Go module. Move into one and run it.
+
+```bash
+# Example: Run the Factory Method pattern
+cd factory-example
+go run main.go
+```
+
+### Run all examples
+
+From the repo root, this runs every module sequentially.
+
+```bash
+make run
+```
+
+### Tests
+
+Run tests in a specific module or across the whole repo.
+
+```bash
+cd strategy-example
+go test ./...
+
+# From the repo root
+go test ./...
+```
+
+## Common Directory Structure
+
+Each example typically follows this Clean Architecture layout:
+
+- `domain/`: Pure domain layer. Defines domain models and interfaces with no external dependencies.
+- `usecase/`: Application layer. Implements use cases using `domain` interfaces.
+- `adapter/`: Concrete implementations (external I/O, algorithms, repositories, etc.).
+- `main.go`: Entry point. Wires dependencies and runs the app.
+
+## Pattern List
 
 Each pattern lives in its own directory (a Go module).
 
@@ -14,60 +62,46 @@ Each pattern lives in its own directory (a Go module).
 
 These patterns make object creation more flexible.
 
-- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): Produces families of related objects without specifying their concrete classes.
-- [**Builder**](./builder-example) (`builder-example`): Encapsulates complex construction so the same process can yield different representations.
-- [**Factory Method**](./factory-example) (`factory-example`): Delegates object creation to subclasses (or implementations).
-- [**Prototype**](./prototype-example) (`prototype-example`): Creates new objects by cloning a prototypical instance.
-- [**Singleton**](./singleton-example) (`singleton-example`): Ensures a class has only one instance.
+- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): Switches between families of related products without depending on concrete types.
+- [**Builder**](./builder-example) (`builder-example`): Separates complex construction steps so one process can build different representations.
+- [**Factory Method**](./factory-example) (`factory-example`): Delegates creation to implementations, reducing the caller’s dependency on concretes.
+- [**Prototype**](./prototype-example) (`prototype-example`): Creates new objects by cloning existing instances.
+- [**Singleton**](./singleton-example) (`singleton-example`): Manages a single shared instance.
 
 ### 2. Structural Patterns
 
 These patterns compose objects and classes into larger structures.
 
-- [**Adapter**](./adapter-example) (`adapter-example`): Makes incompatible interfaces work together.
-- [**Bridge**](./bridge-example) (`bridge-example`): Separates abstractions from their implementations so each can evolve on its own.
-- [**Composite**](./composite-example) (`composite-example`): Treats part-whole hierarchies uniformly, enabling recursive tree structures.
-- [**Decorator**](./decorator-example) (`decorator-example`): Dynamically adds responsibilities to objects.
-- [**Facade**](./facade-example) (`facade-example`): Provides a simple interface to a complex subsystem.
-- [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares instances efficiently when many similar objects are needed.
-- [**Proxy**](./proxy-example) (`proxy-example`): Controls access to another object, such as for access control or lazy initialization.
+- [**Adapter**](./adapter-example) (`adapter-example`): Connects incompatible interfaces.
+- [**Bridge**](./bridge-example) (`bridge-example`): Separates abstraction and implementation so both can evolve independently.
+- [**Composite**](./composite-example) (`composite-example`): Treats parts and wholes uniformly to model tree structures.
+- [**Decorator**](./decorator-example) (`decorator-example`): Layers additional behavior dynamically.
+- [**Facade**](./facade-example) (`facade-example`): Provides a simple façade over a complex subsystem.
+- [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many similar objects efficiently.
+- [**Proxy**](./proxy-example) (`proxy-example`): Uses a stand‑in to control access or delay initialization.
 
 ### 3. Behavioral Patterns
 
 These patterns concern communication and responsibility between objects.
 
-- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): Passes a request along a chain until an object handles it.
-- [**Command**](./command-example) (`command-example`): Encapsulates requests as objects for history tracking, undo, etc.
-- [**Interpreter**](./interpreter-example) (`interpreter-example`): Defines grammar rules as classes to interpret a language.
-- [**Iterator**](./iterator-example) (`iterator-example`): Traverses a collection without exposing its internal structure.
-- [**Mediator**](./mediator-example) (`mediator-example`): Centralizes interactions between multiple objects to reduce coupling.
-- [**Memento**](./memento-example) (`memento-example`): Captures and restores an object’s state.
-- [**Observer**](./observer-example) (`observer-example`): Notifies dependent objects about state changes.
-- [**State**](./state-example) (`state-example`): Changes behavior when an object’s internal state changes.
-- [**Strategy**](./strategy-example) (`strategy-example`): Makes algorithms interchangeable.
-- [**Template Method**](./template-method-example) (`template-method-example`): Defines the skeleton of an algorithm and delegates specific steps to subclasses.
-- [**Visitor**](./visitor-example) (`visitor-example`): Separates algorithms from the data structures they operate on.
+- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): Passes requests along a chain until one handler accepts them.
+- [**Command**](./command-example) (`command-example`): Encapsulates operations for history, undo, etc.
+- [**Interpreter**](./interpreter-example) (`interpreter-example`): Models grammar rules and evaluates expressions.
+- [**Iterator**](./iterator-example) (`iterator-example`): Traverses collections without exposing internals.
+- [**Mediator**](./mediator-example) (`mediator-example`): Centralizes interactions to simplify dependencies.
+- [**Memento**](./memento-example) (`memento-example`): Saves and restores object state snapshots.
+- [**Observer**](./observer-example) (`observer-example`): Notifies subscribers on state changes.
+- [**State**](./state-example) (`state-example`): Changes behavior by switching internal state.
+- [**Strategy**](./strategy-example) (`strategy-example`): Swaps algorithms at runtime.
+- [**Template Method**](./template-method-example) (`template-method-example`): Shares an algorithm skeleton and lets implementations fill in steps.
+- [**Visitor**](./visitor-example) (`visitor-example`): Separates operations from data structures to add new behavior without changing them.
 
 ### Other Patterns
 
-- [**Functional Options**](./functional-options-example): A Go-specific pattern for flexible struct initialization.
-- [**Entitlement (Gateway)**](./entitlement-example): An example of authority management using Clean Architecture. It uses a Gateway (= Adapter) pattern to abstract access to external resources (AD/Cache).
+- [**Functional Options**](./functional-options-example): A Go‑idiomatic pattern for flexible initialization.
+- [**Entitlement (Gateway)**](./entitlement-example): Authority management example. Uses a Gateway (= Adapter) to abstract external resources (AD/Cache).
 
-## 🏗 Common Architecture
+## Notes
 
-Each directory follows a Clean Architecture structure:
-
-- **`domain/`**: Defines core business rules, models, and interfaces. It has no dependencies on external libraries.
-- **`usecase/`**: Implements application-specific business logic using the `domain` interfaces.
-- **`adapter/`**: Contains concrete implementations (e.g., repositories, API clients, algorithms) of `domain` interfaces.
-- **`main.go`**: The entry point that wires dependencies via DI and runs the components.
-
-## 🚀 Running Examples
-
-Move into a pattern directory and run `go run main.go`.
-
-```bash
-# Example: Run the Factory Method pattern
-cd factory-example
-go run main.go
-```
+- These examples are minimal for learning purposes. Adjust the designs for real‑world requirements.
+- See `book/` for background and diagrams.
