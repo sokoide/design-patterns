@@ -5,8 +5,8 @@
 This repository is a collection of Gang of Four design pattern samples implemented in **Go**.  
 Each example follows Clean Architecture ideas, separating business logic from implementation details.
 
-- Japanese README: `README_ja.md`
-- Detailed explanation: `book/00_introduction.md`
+- [Japanese README](./README_ja.md)
+- [Detailed explanation](./book/00_introduction.md)
 
 ## Goals
 

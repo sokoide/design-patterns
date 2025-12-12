@@ -3,8 +3,8 @@
 このリポジトリは、GoF (Gang of Four) のデザインパターンを **Go 言語** で実装したサンプル集です。  
 各例は Clean Architecture の考え方に沿って、ビジネスロジックと実装詳細を分離した構成になっています。
 
-- 英語版 README: `README.md`
-- 詳細解説: `book/00_introduction_ja.md`
+- [英語版 README](./README.md)
+- [詳細解説](./book/00_introduction_ja.md)
 
 ## 目的
 
