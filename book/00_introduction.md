@@ -1,4 +1,4 @@
-# Introduction: Go Design Patterns ~A Journey to Clean Architecture~
+# Introduction: Go Design Patterns 〜A Journey to Clean Architecture〜
 
 Welcome to the world of design patterns!
 This book is not just for memorizing "design patterns."
