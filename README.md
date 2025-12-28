@@ -2,7 +2,7 @@
 
 [日本語版はこちら](./README_ja.md)
 
-This repository is a collection of Gang of Four design pattern samples implemented in **Go**.  
+This repository is a collection of Gang of Four design pattern samples implemented in **Go**.
 Each example follows Clean Architecture ideas, separating business logic from implementation details.
 
 - [Japanese README](./README_ja.md)
@@ -20,8 +20,7 @@ Each example follows Clean Architecture ideas, separating business logic from im
 Each `*-example` directory is an independent Go module. Move into one and run it.
 
 ```bash
-# Example: Run the Factory Method pattern
-cd factory-example
+cd strategy-example
 go run main.go
 ```
 
@@ -56,50 +55,67 @@ Each example typically follows this Clean Architecture layout:
 
 ## Pattern List
 
-Each pattern lives in its own directory (a Go module).
-
 ### 1. Creational Patterns
 
-These patterns make object creation more flexible.
+Patterns that make object creation more flexible. Some are marked as "ignored" or "avoided" because they are less idiomatic in Go.
 
-- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): Switches between families of related products without depending on concrete types.
-- [**Builder**](./builder-example) (`builder-example`): Separates complex construction steps so one process can build different representations.
-- [**Factory Method**](./factory-example) (`factory-example`): Delegates creation to implementations, reducing the caller’s dependency on concretes.
-- [**Prototype**](./prototype-example) (`prototype-example`): Creates new objects by cloning existing instances.
+- [**Builder**](./builder-example) (`builder-example`): Separates complex construction steps.
+  - **Note**: In Go, we usually use **Functional Options**, so this is mostly ignored.
+- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): Switches between families of related products.
+  - **Note**: Rarely used in practice. Ignored.
+- [**Factory Method**](./factory-example) (`factory-example`): Delegates creation to implementations.
+  - **Note**: Not very common in Go. `NewServer(cfg Config)` style constructors are usually sufficient. Use it only if you need to create instances dynamically.
 - [**Singleton**](./singleton-example) (`singleton-example`): Manages a single shared instance.
+  - **Note**: **Avoid**. It hinders testability and can cause concurrency issues.
+- [**Prototype**](./prototype-example) (`prototype-example`): Creates new objects by cloning.
+  - **Note**: Since copying structs is cheap (`b := a`), this is mostly ignored.
 
 ### 2. Structural Patterns
 
-These patterns compose objects and classes into larger structures.
+Patterns for composing objects and classes into larger structures.
 
 - [**Adapter**](./adapter-example) (`adapter-example`): Connects incompatible interfaces.
-- [**Bridge**](./bridge-example) (`bridge-example`): Separates abstraction and implementation so both can evolve independently.
-- [**Composite**](./composite-example) (`composite-example`): Treats parts and wholes uniformly to model tree structures.
 - [**Decorator**](./decorator-example) (`decorator-example`): Layers additional behavior dynamically.
+- [**Composite**](./composite-example) (`composite-example`): Treats parts and wholes uniformly.
 - [**Facade**](./facade-example) (`facade-example`): Provides a simple façade over a complex subsystem.
-- [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many similar objects efficiently.
-- [**Proxy**](./proxy-example) (`proxy-example`): Uses a stand‑in to control access or delay initialization.
+- [**Proxy**](./proxy-example) (`proxy-example`): Controls access or delays initialization.
+- [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many objects efficiently.
+
+The following is ignored:
+
+- [**Bridge**](./bridge-example) (`bridge-example`): Separates abstraction and implementation.
+  - **Note**: Go's `interface` makes this pattern largely unnecessary. Ignored.
 
 ### 3. Behavioral Patterns
 
-These patterns concern communication and responsibility between objects.
+Patterns concerning communication and responsibility between objects.
 
-- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): Passes requests along a chain until one handler accepts them.
-- [**Command**](./command-example) (`command-example`): Encapsulates operations for history, undo, etc.
-- [**Interpreter**](./interpreter-example) (`interpreter-example`): Models grammar rules and evaluates expressions.
-- [**Iterator**](./iterator-example) (`iterator-example`): Traverses collections without exposing internals.
-- [**Mediator**](./mediator-example) (`mediator-example`): Centralizes interactions to simplify dependencies.
-- [**Memento**](./memento-example) (`memento-example`): Saves and restores object state snapshots.
-- [**Observer**](./observer-example) (`observer-example`): Notifies subscribers on state changes.
-- [**State**](./state-example) (`state-example`): Changes behavior by switching internal state.
 - [**Strategy**](./strategy-example) (`strategy-example`): Swaps algorithms at runtime.
-- [**Template Method**](./template-method-example) (`template-method-example`): Shares an algorithm skeleton and lets implementations fill in steps.
-- [**Visitor**](./visitor-example) (`visitor-example`): Separates operations from data structures to add new behavior without changing them.
+- [**Observer**](./observer-example) (`observer-example`): Notifies subscribers on state changes.
+- [**Command**](./command-example) (`command-example`): Encapsulates operations for history, undo, etc.
+- [**Chain of Responsibility**](./chain-of-responsibility-example) (`chain-of-responsibility-example`): Passes requests along a chain.
+- [**State**](./state-example) (`state-example`): Changes behavior by switching internal state.
+- [**Memento**](./memento-example) (`memento-example`): Saves and restores state snapshots.
+
+The following are ignored:
+
+- [**Iterator**](./iterator-example) (`iterator-example`): Traverses collections.
+  - **Note**: Go has `for range`, and custom iterators usually just need a `Next() (T, bool)` method. Ignored.
+- [**Mediator**](./mediator-example) (`mediator-example`): Centralizes interactions.
+  - **Note**: Often leads to "God Objects". Ignored.
+- [**Template Method**](./template-method-example) (`template-method-example`): Shares an algorithm skeleton.
+  - **Note**: Go lacks inheritance. Use functions, small interfaces, and composition instead. Ignored.
+- [**Visitor**](./visitor-example) (`visitor-example`): Separates operations from data structures.
+  - **Note**: Usually replaced by `switch n := n.(type)` (type switches). Ignored.
+- [**Interpreter**](./interpreter-example) (`interpreter-example`): Models grammar rules.
+  - **Note**: Interesting for compilers, but skipped in this collection.
 
 ### Other Patterns
 
+Commonly used in Go.
+
 - [**Functional Options**](./functional-options-example): A Go‑idiomatic pattern for flexible initialization.
-- [**Entitlement (Gateway)**](./entitlement-example): Authority management example. Uses a Gateway (= Adapter) to abstract external resources (AD/Cache).
+- [**Entitlement (Gateway)**](./entitlement-example): Authority management example using a Gateway (= Adapter) to abstract external resources.
 
 ## Notes
 

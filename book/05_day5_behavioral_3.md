@@ -1,34 +1,31 @@
-# Day 5: Complex Flows and Responsibilities (Behavioral Patterns Part 2)
+# Day 5: Managing State & Responsibility (Behavioral Patterns Part 2)
 
 Finally, it's the last day, Day 5!
-So far, we've learned 18 patterns.
-Today, we'll cover patterns that are a bit more complex but truly shine when building large-scale systems and frameworks—patterns for the "connoisseur."
-If you understand these, you're no longer a "design pattern beginner."
+Today, we will learn advanced patterns for controlling the flow of a system, saving past states, and managing the "state" of objects itself.
+Understanding these will allow you to smartly implement complex business flows, Undo/Redo features, and complex state transitions.
 
-Today, we will learn the following 5 patterns:
+Today, we will learn the following three patterns:
 
-1. **Chain of Responsibility**: The art of passing the buck
-2. **Mediator**: The traffic cop
-3. **Memento**: Turning back time
-4. **Visitor**: Adding functionality without changing structure
-5. **Interpreter**: Creating a language
+1.  **Chain of Responsibility**: The aesthetics of passing the buck
+2.  **State**: Moody objects
+3.  **Memento**: Let's turn back time
 
 ---
 
-## 19. Chain of Responsibility
+## 10. Chain of Responsibility
 
-### 📖 Story: Call Center
+### 📖 Story: The Call Center
 
 A customer calls with a complaint.
 
-1. First, an "operator" answers. If they can resolve it, the call ends there.
-2. If not, it's escalated to a "leader." If they can resolve it, it ends.
-3. If still unresolved, a "manager" steps in.
-    The responsibility is "passed along (chained)" to the next person until someone who can resolve the issue is found.
+1.  First, the "operator" answers. If it can be solved there, it ends.
+2.  If not, it's passed to the "leader." If solved, it ends.
+3.  If still not, the "manager" comes out.
+    The responsibility is "passed along (chained)" until someone who can solve the problem is found.
 
 ### 💡 Concept
 
-Requests are passed sequentially through a chain of objects until an object that can handle the request is found.
+Passes requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain.
 
 ```mermaid
 classDiagram
@@ -40,16 +37,16 @@ classDiagram
     Handler o-- Handler : Next
 ```
 
-### 🐹 Go Implementation Tips
+### 🐹 The Essence of Go Implementation
 
-Web framework "middleware" is a prime example of this.
-Authentication → Logging → Request parsing → ... processes are chained.
-In Go, you can implement this by having a `next` field in a struct to form a linked list, or by arranging handlers in a slice and executing them sequentially.
+Web framework "middleware" is exactly this.
+Processing is chained: Authentication → Logging → Request Analysis → ...
+In Go, it's implemented by having a `next` field in a struct to create a linked list, or by lining up handlers in a slice and executing them sequentially.
 
 ### 🧪 Hands-on
 
-Let's look at `chain-of-responsibility-example` (hospital reception example).
-Add a new handler (e.g., `InsuranceCheckHandler`) in the middle of the chain and observe how the processing flow changes.
+Let's look at `chain-of-responsibility-example` (the hospital reception example).
+Try adding a new handler (e.g., `InsuranceCheckHandler`) in the middle of the chain and confirm that the flow of processing changes.
 
 ### ❓ Quiz
 
@@ -59,75 +56,77 @@ B. Processing speed becomes the fastest.
 C. Database capacity is reduced.
 
 <details>
-<summary>Correct Answer</summary>
-**A**. It reduces the coupling between the sender and the receiver (processor).
+<summary>Answer</summary>
+**A**. You can reduce the coupling between the sender and the receiver (the processing side).
 </details>
 
 ---
 
-## 20. Mediator
+## 11. State
 
-### 📖 Story: Airport Control Tower
+### 📖 Story: The Smartphone Button
 
-If airplanes communicated directly with each other, like "Hey, I'm landing now," "Understood, I'll wait," it would be chaos.
-All airplanes communicate only with the "control tower (Mediator)."
-"Requesting landing clearance," "Cleared to land."
-The control tower aggregates all information and issues instructions, ensuring air safety.
+Think about the behavior when you press the "power button" on a smartphone.
+When the screen is OFF → the screen turns ON.
+When the screen is ON → the screen turns OFF.
+Even with the same action of "pressing a button," the result changes depending on the "state" of the smartphone.
+If you write this as `if state == ON { ... } else { ... }`, it becomes spaghetti code when the number of states increases.
 
 ### 💡 Concept
 
-Complex communication between objects is centralized in a Mediator, reducing the coupling between objects.
+Allows an object to alter its behavior when its internal state changes. The object will appear to change its class.
 
 ```mermaid
 classDiagram
-    class Mediator {
+    class Context {
+        -state State
+        +Request()
+    }
+    class State {
         <<interface>>
-        +Notify(sender, event)
+        +Handle()
     }
-    class Colleague {
-        -mediator Mediator
-    }
-    Mediator <|.. ConcreteMediator
-    Colleague o-- Mediator
+    Context o-- State
+    State <|.. ConcreteStateA
 ```
 
-### 🐹 Go Implementation Tips
+### 🐹 The Essence of Go Implementation
 
-This pattern is used for GUI application form control or as an orchestrator between microservices.
-Each component (Colleague) only knows the Mediator's interface and is unaware of other specific components.
-When dependencies become a spaghetti mess (many-to-many), introduce a Mediator to organize them into a "star shape (one-to-many)."
+Create a struct for each state and implement a common interface.
+The Context (smartphone) holds the current state (State interface) and calls `state.PressButton()` when the button is pressed.
+Who manages the state transition (switching to the next state), the Context or the State, depends on the design.
 
 ### 🧪 Hands-on
 
-Let's look at `mediator-example` (train and station example).
-Verify that adding a new type of train (e.g., `ExpressTrain`) does not require changing other train classes.
+Let's look at `state-example` (the vending machine example).
+Try adding a new state (e.g., "Under Maintenance") and making it transition to that state through a specific operation.
 
 ### ❓ Quiz
 
-**Q2. What is a drawback of the Mediator pattern?**
-A. The Mediator class itself tends to become huge and complex (God Object).
-B. Communication between objects becomes impossible.
-C. No particular drawbacks.
+**Q2. What is the difference between the State pattern and the Strategy pattern?**
+A. They are exactly the same.
+B. Strategy focuses on "how to process (algorithm)," while State focuses on "what to do (behavior based on state)," and State often switches itself.
+C. State uses inheritance, while Strategy does not.
 
 <details>
-<summary>Correct Answer</summary>
-**A**. Since all logic is concentrated in the Mediator, there is a risk that the Mediator itself becomes bloated and difficult to maintain.
+<summary>Answer</summary>
+**B**. While the structure is similar, the purpose and "who switches (State often transitions internally)" differ.
 </details>
 
 ---
 
-## 21. Memento
+## 12. Memento
 
-### 📖 Story: Game Save Point
+### 📖 Story: Game Save Points
 
-In an RPG, you "save" before a boss battle, right?
-If you lose, you return to the state at the time of saving.
-The game's internal data (HP, MP, position, etc.) is saved as "save data (Memento)," and can be loaded and restored when needed.
-At this time, it's important to protect encapsulation so that the contents of the save data cannot be arbitrarily modified.
+You "save" before a boss battle in an RPG, right?
+If you lose, you return to the state at the time you saved.
+By saving internal game data (HP, MP, position, etc.) as "save data (Memento)" and loading it when needed, you can restore it.
+It's important to protect encapsulation so that the save data can't be modified arbitrarily.
 
 ### 💡 Concept
 
-Saves and restores the internal state of an object without violating its encapsulation.
+Allows capturing and externalizing an object's internal state so that the object can be restored to this state later, without violating encapsulation.
 
 ```mermaid
 classDiagram
@@ -142,138 +141,36 @@ classDiagram
     Originator ..> Memento : Creates
 ```
 
-### 🐹 Go Implementation Tips
+### 🐹 The Essence of Go Implementation
 
-In Go, encapsulation is protected by making the fields of the `Memento` struct lowercase (private), preventing modification from outside the package.
-Only the `Originator` is designed to read and write its contents.
+In Go, you protect encapsulation by making the fields of the `Memento` struct unexported (private) so they cannot be changed from outside the package.
+Design it so that only the `Originator` can read and write its contents.
 
 ### 🧪 Hands-on
 
-In `memento-example`, try the Undo function of a text editor.
-Make multiple changes and then Undo multiple times to see if you can revert to past states.
+Try the Undo feature of the text editor in `memento-example`.
+Make multiple changes and see if you can return to past states by performing multiple Undo operations.
 
 ### ❓ Quiz
 
-**Q3. Where should the "state" saved by the Memento pattern be placed?**
-A. Global variable
-B. Inside the Memento object
-C. Only in the database
+**Q3. Where is the "state" saved in the Memento pattern placed?**
+A. In a global variable.
+B. Inside the Memento object.
+C. Only in the database.
 
 <details>
-<summary>Correct Answer</summary>
-**B**. The state is encapsulated within the Memento object and passed to the Caretaker (manager).
+<summary>Answer</summary>
+**B**. You encapsulate the state inside the Memento object and pass it to the Caretaker (manager).
 </details>
 
 ---
 
-## 22. Visitor
+# 🎉 Congratulations on your Graduation!
 
-### 📖 Story: Inspection Company
-
-A house has a kitchen, bathroom, living room, etc.
-When a "plumbing inspector (Visitor A)" comes, they check the water systems in the kitchen and bathroom.
-When an "electrical inspector (Visitor B)" comes, they check the outlets in each room.
-Without changing the structure of the house (rooms), new operations like "inspection" can be added simply by adding new inspectors (Visitors).
-
-### 💡 Concept
-
-Separates a data structure from the operations (processing) performed on it. New operations can be added without modifying the data structure.
-
-```mermaid
-classDiagram
-    class Element {
-        <<interface>>
-        +Accept(Visitor)
-    }
-    class Visitor {
-        <<interface>>
-        +VisitElementA(ElementA)
-        +VisitElementB(ElementB)
-    }
-```
-
-### 🐹 Go Implementation Tips
-
-This uses a technique called "double dispatch."
-`Element.Accept(v)` calls `v.Visit(self)`, which selects the appropriate processing method at runtime.
-This is very powerful when adding processing to data with complex nested structures, such as AST (Abstract Syntax Tree) analysis or Kubernetes manifest validation.
-
-### 🧪 Hands-on
-
-Let's look at `visitor-example` (shape area calculator example).
-Create a new Visitor (e.g., `PerimeterCalculator`) and add a new operation without modifying the existing shape structs.
-
-### ❓ Quiz
-
-**Q4. When should the Visitor pattern NOT be used?**
-A. When the data structure (types of Elements) changes frequently.
-B. When new operations need to be added frequently.
-C. When the data structure is stable.
-
-<details>
-<summary>Correct Answer</summary>
-**A**. If the number of Elements increases, the Visitor interface methods must also be increased, requiring modification of all Visitor implementations, which can be difficult.
-</details>
-
----
-
-## 23. Interpreter
-
-### 📖 Story: Custom Language
-
-Suppose you want to calculate expressions like "1 + 2" or "A and (B or C)."
-To interpret this programmatically, you need to define a "grammar" and a mechanism to parse it.
-By representing each grammatical rule (addition, variables, AND, etc.) as a class and combining them to form a tree structure, you can evaluate (execute) the expression.
-
-### 💡 Concept
-
-Represents the grammar rules of a language as classes and interprets/executes sentences written in that language.
-
-```mermaid
-classDiagram
-    class AbstractExpression {
-        <<interface>>
-        +Interpret(Context)
-    }
-    class TerminalExpression {
-        +Interpret(Context)
-    }
-    class NonterminalExpression {
-        +Interpret(Context)
-    }
-    NonterminalExpression o-- AbstractExpression
-```
-
-### 🐹 Go Implementation Tips
-
-Go's `text/template` package and SQL parsers are examples of this pattern's application.
-It's used when you want to create your own DSL (Domain Specific Language) or represent complex search conditions (combinations of AND/OR/NOT) as objects.
-
-### 🧪 Hands-on
-
-In `interpreter-example`, run an interpreter that interprets simple arithmetic expressions (addition, subtraction).
-Try adding a new operator (e.g., multiplication).
-
-### ❓ Quiz
-
-**Q5. In what cases is the Interpreter pattern suitable?**
-A. Reading simple configuration files.
-B. Interpreting languages with simple grammar that do not change frequently.
-C. Programming languages that require fast compilation.
-
-<details>
-<summary>Correct Answer</summary>
-**B**. It is not suitable for overly complex languages, but it is suitable for creating small, domain-specific languages (DSLs).
-</details>
-
----
-
-# 🎉 Congratulations on Graduating
-
-You have now completed learning all 23 design patterns!
-You now possess powerful tools.
-However, knowing when and where to use these tools is crucial.
-Instead of "using a pattern just because you want to,"
-strive to be an engineer who "uses this pattern because it's the best solution for the problem at hand."
+You have now completed learning about the design patterns that are truly important in Go!
+You have now acquired powerful weapons.
+But the key to weapons is where to use them.
+Don't be an engineer who "uses a pattern because I want to use it."
+Be an engineer who "uses a pattern because it is the best solution to the problem in front of me."
 
 **Happy Coding with Go!**
