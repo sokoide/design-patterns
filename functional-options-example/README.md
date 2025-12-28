@@ -14,7 +14,7 @@ You will learn a technique to flexibly and readably set only the necessary param
 In the `functional-options-example` directory:
 
 ```bash
-go run main.go
+go run .
 ```
 
 ## ⚙️ Scenario: Server Configuration
@@ -73,7 +73,7 @@ classDiagram
 
 1. **Option type**: Define a function type that modifies the target struct, like `type Option func(*Server)`.
 2. **With functions**: Create higher-order functions that return a closure, like `WithPort(p int) Option`.
-3. **New function**: Accepts variadic arguments `opts ...Option`, and after setting up the instance with default settings, applies the option functions in a loop (`opt(s)`).
+3. **NewServer function**: Accepts variadic arguments `opts ...Option`, and after setting up the instance with default settings, applies the option functions in a loop (`opt(s)`).
 
 ## 💡 Architecture Design Notes (Q&A)
 
@@ -94,5 +94,5 @@ It is a common practice to make required items (e.g., DB connection string) norm
 ## 🚀 How to Run
 
 ```bash
-go run main.go
+go run .
 ```

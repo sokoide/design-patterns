@@ -14,7 +14,7 @@
 `functional-options-example` ディレクトリで実行します。
 
 ```bash
-go run main.go
+go run .
 ```
 
 ## ⚙️ シナリオ: サーバーの設定 (Configuration)
@@ -70,7 +70,7 @@ classDiagram
 
 1.  **Option型**: `type Option func(*Server)` のように、対象の構造体を変更する関数型を定義します。
 2.  **With関数**: `WithPort(p int) Option` のように、クロージャを返す高階関数を作ります。
-3.  **New関数**: 可変長引数 `opts ...Option` を受け取り、デフォルト設定を行った後のインスタンスに対して、ループでオプション関数を適用(`opt(s)`)します。
+3.  **NewServer関数**: 可変長引数 `opts ...Option` を受け取り、デフォルト設定を行った後のインスタンスに対して、ループでオプション関数を適用(`opt(s)`)します。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
@@ -91,5 +91,5 @@ classDiagram
 ## 🚀 実行方法
 
 ```bash
-go run main.go
+go run .
 ```
