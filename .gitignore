@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# AI
+conductor/archive/
+
 # Test binary, built with `go test -c`
 *.test
 

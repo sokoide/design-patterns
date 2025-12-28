@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"strategy-example/domain"
 )
 
@@ -11,13 +10,15 @@ import (
 type PaymentProcessor struct {
 	payment  domain.PaymentMethod
 	shipping domain.ShippingMethod
+	logger   domain.Logger
 }
 
 // NewPaymentProcessor creates a new processor with an initial payment and shipping strategy.
-func NewPaymentProcessor(payment domain.PaymentMethod, shipping domain.ShippingMethod) *PaymentProcessor {
+func NewPaymentProcessor(payment domain.PaymentMethod, shipping domain.ShippingMethod, logger domain.Logger) *PaymentProcessor {
 	return &PaymentProcessor{
 		payment:  payment,
 		shipping: shipping,
+		logger:   logger,
 	}
 }
 
@@ -45,17 +46,17 @@ func (p *PaymentProcessor) ProcessOrder(ctx domain.OrderContext) error {
 		return errors.New("payment or shipping strategy is not set")
 	}
 
-	fmt.Println("--- Starting Payment Process ---")
+	p.logger.Log("--- Starting Payment Process ---")
 	// The usecase doesn't know *how* the payment is made, only *that* it is made.
 	if err := p.payment.Pay(ctx.Amount); err != nil {
 		return err
 	}
-	fmt.Println("--- Payment Successful ---")
+	p.logger.Log("--- Payment Successful ---")
 
-	fmt.Println("--- Preparing Shipment ---")
+	p.logger.Log("--- Preparing Shipment ---")
 	if err := p.shipping.Ship(ctx.Destination); err != nil {
 		return err
 	}
-	fmt.Println("--- Shipment Scheduled ---")
+	p.logger.Log("--- Shipment Scheduled ---")
 	return nil
 }

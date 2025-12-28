@@ -13,6 +13,11 @@ type ShippingMethod interface {
 	Ship(destination string) error
 }
 
+// Logger defines the interface for logging.
+type Logger interface {
+	Log(message string)
+}
+
 // OrderContext holds the data required for a full checkout, including payment and shipping.
 type OrderContext struct {
 	Amount      float64

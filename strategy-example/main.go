@@ -8,15 +8,16 @@ import (
 )
 
 func main() {
-	// 1. Initialize Strategies (Adapters)
+	// 1. Initialize Strategies and Logger (Adapters)
+	logger := adapter.NewConsoleLogger()
 	creditCard := adapter.NewCreditCardStrategy("1234567812345678", "123")
 	paypal := adapter.NewPayPalStrategy("user@example.com")
 	bitcoin := adapter.NewBitcoinStrategy("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")
 	standardShipping := adapter.NewStandardShippingStrategy("Japan Post", 5)
 	expressShipping := adapter.NewExpressShippingStrategy("DHL Express")
 
-	// 2. Initialize Usecase with the default strategy (Credit Card)
-	processor := usecase.NewPaymentProcessor(creditCard, standardShipping)
+	// 2. Initialize Usecase with the default strategy (Credit Card) and Logger
+	processor := usecase.NewPaymentProcessor(creditCard, standardShipping, logger)
 
 	// 3. Execute Business Logic
 	fmt.Println("Scenario 1: Customer pays with Credit Card")
