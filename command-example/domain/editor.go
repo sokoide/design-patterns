@@ -8,7 +8,7 @@ type Buffer struct {
 
 // NewBuffer creates a new buffer.
 func NewBuffer() *Buffer {
-	return &Buffer{Content: ""}
+	return &Buffer{}
 }
 
 // Command interface defines the contract for all editor operations.

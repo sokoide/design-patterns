@@ -31,4 +31,3 @@ func main() {
 	fmt.Println("\nPrinting hierarchy for Clone Folder2:")
 	cloneFolder.Print("  ")
 }
-

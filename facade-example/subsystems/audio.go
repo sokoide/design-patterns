@@ -23,4 +23,3 @@ func (a *AudioSystem) SetVolume(vol int) {
 func (a *AudioSystem) SetSource(source string) {
 	fmt.Printf("  [Audio] Source set to '%s'.\n", source)
 }
-

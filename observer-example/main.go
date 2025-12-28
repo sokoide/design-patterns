@@ -37,4 +37,3 @@ func main() {
 	// Only Slack and Log should react
 	market.UpdatePrice(29000.00)
 }
-

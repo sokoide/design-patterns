@@ -1,6 +1,6 @@
 package domain
 
-import "fmt"
+import "errors"
 
 // Pizza is the Product interface that every concrete pizza must follow.
 // The Usecase layer relies on this interface to interact with the pizza without
@@ -21,4 +21,4 @@ type PizzaFactory interface {
 
 // ErrUnknownPizzaType is returned by the Simple Factory when an unsupported
 // pizza type is requested.
-var ErrUnknownPizzaType = fmt.Errorf("unknown pizza type")
+var ErrUnknownPizzaType = errors.New("unknown pizza type")

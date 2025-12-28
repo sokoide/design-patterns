@@ -1,6 +1,6 @@
 package domain
 
-import "fmt"
+import "errors"
 
 // PaymentMethod defines the interface that all payment strategies must implement.
 // This is the abstraction layer in Clean Architecture.
@@ -21,6 +21,6 @@ type OrderContext struct {
 
 // Custom Errors
 var (
-	ErrInvalidAmount      = fmt.Errorf("invalid amount")
-	ErrInvalidDestination = fmt.Errorf("invalid destination")
+	ErrInvalidAmount      = errors.New("invalid amount")
+	ErrInvalidDestination = errors.New("invalid destination")
 )

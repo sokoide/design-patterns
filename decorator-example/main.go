@@ -17,8 +17,8 @@ func main() {
 
 	// 2. Order a HouseBlend with Double Mocha and Whip
 	// Pattern: Wrap the object recursively
-	var beverage2 = adapter.NewHouseBlend()       // Base
-	beverage2Mocha := adapter.NewMocha(beverage2) // Wrap with Mocha
+	var beverage2 = adapter.NewHouseBlend()             // Base
+	beverage2Mocha := adapter.NewMocha(beverage2)       // Wrap with Mocha
 	beverage2Mocha2 := adapter.NewMocha(beverage2Mocha) // Wrap with Mocha again
 	beverage2Final := adapter.NewWhip(beverage2Mocha2)  // Wrap with Whip
 

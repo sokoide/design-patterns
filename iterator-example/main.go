@@ -22,4 +22,3 @@ func main() {
 		fmt.Printf("User is %s\n", user.Name)
 	}
 }
-

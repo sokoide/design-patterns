@@ -10,7 +10,7 @@ func main() {
 
 	dev1 := &adapter.Developer{Name: "John"}
 	dev2 := &adapter.Developer{Name: "Jane"}
-	ஜdes1 := &adapter.Designer{Name: "Mike"}
+	des1 := &adapter.Designer{Name: "Mike"}
 
 	manager1 := &adapter.Manager{Name: "Bob"}
 	manager1.Add(dev1)

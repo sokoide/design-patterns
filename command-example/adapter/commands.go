@@ -40,8 +40,8 @@ func (c *InsertCommand) Undo(b *domain.Buffer) {
 // DeleteCommand removes the last N characters.
 // It remembers what was deleted to support Undo.
 type DeleteCommand struct {
-	count         int
-	deletedText   string // State to save for Undo
+	count       int
+	deletedText string // State to save for Undo
 }
 
 func NewDeleteCommand(count int) *DeleteCommand {
@@ -53,11 +53,11 @@ func (c *DeleteCommand) Do(b *domain.Buffer) {
 	if currentLen < c.count {
 		c.count = currentLen // Adjust to available length
 	}
-	
+
 	// Save state for Undo
 	start := currentLen - c.count
 	c.deletedText = b.Content[start:]
-	
+
 	// Execute
 	b.Content = b.Content[:start]
 	fmt.Printf("[CMD] Deleted last %d chars: '%s'\n", c.count, c.deletedText)

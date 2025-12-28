@@ -22,4 +22,3 @@ type Tree struct {
 func (t *Tree) Draw() {
 	t.Type.Draw(t.X, t.Y)
 }
-

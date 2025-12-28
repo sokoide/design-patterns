@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"errors"
 	"fmt"
 	"strategy-example/domain"
 )
@@ -29,7 +30,7 @@ func NewCreditCardStrategy(cardNumber, cvv string) *CreditCardStrategy {
 
 func (c *CreditCardStrategy) Pay(amount float64) error {
 	if c.CardNumber == "" {
-		return fmt.Errorf("credit card number is empty")
+		return errors.New("credit card number is empty")
 	}
 	last4 := c.CardNumber
 	if len(last4) > 4 {
@@ -52,7 +53,7 @@ func NewPayPalStrategy(email string) *PayPalStrategy {
 
 func (p *PayPalStrategy) Pay(amount float64) error {
 	if p.Email == "" {
-		return fmt.Errorf("paypal account email is empty")
+		return errors.New("paypal account email is empty")
 	}
 	fmt.Printf("Paying $%.2f using PayPal (Account: %s)\n", amount, p.Email)
 	return nil
@@ -71,7 +72,7 @@ func NewBitcoinStrategy(wallet string) *BitcoinStrategy {
 
 func (b *BitcoinStrategy) Pay(amount float64) error {
 	if b.WalletAddress == "" {
-		return fmt.Errorf("bitcoin wallet address is empty")
+		return errors.New("bitcoin wallet address is empty")
 	}
 	fmt.Printf("Paying $%.2f using Bitcoin (Wallet: %s)\n", amount, b.WalletAddress)
 	return nil
@@ -92,10 +93,10 @@ func NewStandardShippingStrategy(carrier string, transitDays int) *StandardShipp
 
 func (s *StandardShippingStrategy) Ship(destination string) error {
 	if s.Carrier == "" {
-		return fmt.Errorf("shipping carrier is empty")
+		return errors.New("shipping carrier is empty")
 	}
 	if s.TransitDays <= 0 {
-		return fmt.Errorf("invalid transit days")
+		return errors.New("invalid transit days")
 	}
 	fmt.Printf("Scheduling standard %s shipping to %s (ETA: %d days)\n", s.Carrier, destination, s.TransitDays)
 	return nil
@@ -114,7 +115,7 @@ func NewExpressShippingStrategy(carrier string) *ExpressShippingStrategy {
 
 func (e *ExpressShippingStrategy) Ship(destination string) error {
 	if e.Carrier == "" {
-		return fmt.Errorf("shipping carrier is empty")
+		return errors.New("shipping carrier is empty")
 	}
 	fmt.Printf("Scheduling express %s shipping to %s (Next day delivery)\n", e.Carrier, destination)
 	return nil

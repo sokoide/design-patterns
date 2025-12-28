@@ -37,4 +37,3 @@ func (s *Screen) Down() {
 func (s *Screen) Up() {
 	fmt.Println("  [Screen] Raising screen...")
 }
-

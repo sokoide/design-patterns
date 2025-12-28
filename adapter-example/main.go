@@ -30,4 +30,3 @@ func main() {
 	fmt.Println("\n[Client] Using Windows via Adapter:")
 	client.InsertLightningConnectorIntoComputer(windowsAdapter)
 }
-

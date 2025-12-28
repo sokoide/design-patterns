@@ -25,4 +25,3 @@ func main() {
 	fmt.Println("\n[System] Windows + Epson:")
 	win.Print()
 }
-

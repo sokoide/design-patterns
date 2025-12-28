@@ -34,4 +34,3 @@ func main() {
 	// 6. Lock (B) -> Should become Locked
 	door.ExecuteAction(domain.ActionB)
 }
-

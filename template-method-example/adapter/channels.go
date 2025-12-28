@@ -46,4 +46,3 @@ func (s *Email) SendNotification(message string) error {
 	fmt.Printf("EMAIL: sending message: %s\n", message)
 	return nil
 }
-

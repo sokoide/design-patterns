@@ -21,4 +21,3 @@ func main() {
 	fmt.Printf("John is male? %v\n", isMale.Interpret("John"))
 	fmt.Printf("Julie is a married woman? %v\n", isMarriedWoman.Interpret("Married Julie"))
 }
-

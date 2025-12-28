@@ -1,6 +1,6 @@
 package domain
 
-import "fmt"
+import "errors"
 
 // Action represents the user input (Button A or Button B).
 type Action string
@@ -19,5 +19,5 @@ type DoorState interface {
 
 // Common errors or messages
 var (
-	ErrInvalidAction = fmt.Errorf("action not valid for current state")
+	ErrInvalidAction = errors.New("action not valid for current state")
 )

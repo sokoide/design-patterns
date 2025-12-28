@@ -1,6 +1,6 @@
 package domain
 
-import "fmt"
+import "errors"
 
 // Observer defines the interface that all listeners must implement.
 // In Clean Architecture, this is an Output Port (or part of it).
@@ -19,5 +19,5 @@ type Subject interface {
 
 // Common errors
 var (
-	ErrItemNotFound = fmt.Errorf("item not found")
+	ErrItemNotFound = errors.New("item not found")
 )

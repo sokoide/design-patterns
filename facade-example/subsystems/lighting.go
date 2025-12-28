@@ -19,4 +19,3 @@ func (l *Lighting) Off() {
 func (l *Lighting) Dim(level int) {
 	fmt.Printf("  [Lighting] Lights dimmed to %d%%.\n", level)
 }
-

@@ -15,11 +15,10 @@ type Editor struct {
 func NewEditor() *Editor {
 	return &Editor{
 		buffer: domain.NewBuffer(),
-		stack:  make([]domain.Command, 0),
 	}
 }
 
-// Execute perform a command and pushes it to the stack.
+// Execute performs a command and pushes it to the stack.
 func (e *Editor) Execute(c domain.Command) {
 	c.Do(e.buffer)
 	e.stack = append(e.stack, c)

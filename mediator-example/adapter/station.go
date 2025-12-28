@@ -7,20 +7,19 @@ import (
 
 type StationManager struct {
 	isPlatformFree bool
-	lock           *sync.Mutex
+	mu             sync.Mutex
 	trainQueue     []domain.Train
 }
 
 func NewStationManager() *StationManager {
 	return &StationManager{
 		isPlatformFree: true,
-		lock:           &sync.Mutex{},
 	}
 }
 
 func (s *StationManager) CanArrive(t domain.Train) bool {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.isPlatformFree {
 		s.isPlatformFree = false
 		return true
@@ -30,18 +29,18 @@ func (s *StationManager) CanArrive(t domain.Train) bool {
 }
 
 func (s *StationManager) NotifyAboutDeparture() {
-	s.lock.Lock()
+	s.mu.Lock()
 	// Free the platform for the next train.
 	s.isPlatformFree = true
 	if len(s.trainQueue) == 0 {
-		s.lock.Unlock()
+		s.mu.Unlock()
 		return
 	}
 	// Dequeue next train and reserve the platform for it.
 	firstTrain := s.trainQueue[0]
 	s.trainQueue = s.trainQueue[1:]
 	s.isPlatformFree = false
-	s.lock.Unlock()
+	s.mu.Unlock()
 
 	// Call out to the train without holding the lock to avoid deadlocks.
 	firstTrain.PermitArrival()

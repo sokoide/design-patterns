@@ -34,4 +34,3 @@ func (d *DoorContext) ExecuteAction(action domain.Action) {
 func (d *DoorContext) GetStateName() string {
 	return d.currentState.Name()
 }
-

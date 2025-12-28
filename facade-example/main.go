@@ -35,4 +35,3 @@ func main() {
 	// Scenario 2: Next Morning
 	home.GoodMorningMode()
 }
-
