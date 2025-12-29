@@ -5,10 +5,11 @@ Day 1 お疲れ様でした！
 クラスやオブジェクトをどのように組み合わせれば、変更に強く、再利用しやすい構造が作れるでしょうか？
 「継承よりコンポジション（委譲）」という言葉をよく聞きますが、その真髄がここにあります。
 
-本日は以下の 2 つのパターンを学びます。
+本日は以下の 3 つのパターンを学びます。
 
 1.  **Adapter**: 違う言葉を話す二人をつなぐ
 2.  **Decorator**: 着せ替え人形のように機能を追加
+3.  **Composite**: 部分と全体を同一視する
 
 ---
 
@@ -162,6 +163,84 @@ C. シングルトンを簡単に作れる
 <details>
 <summary>正解</summary>
 **A**. 静的な継承関係ではなく、実行時に動的に機能を組み合わせることができます。
+</details>
+
+---
+
+## 4. Composite (コンポジット)
+
+### 📖 ストーリー：ファイルシステム
+
+コンピュータのファイルとフォルダ（ディレクトリ）を思い浮かべてください。
+「ファイル」は単体のアイテムです。「フォルダ」はファイルを入れることができる容器です。
+しかし、よく考えると「フォルダ」の中に別の「フォルダ」を入れることもできますよね。
+「ファイルを検索する」「合計サイズを計算する」といった操作をするとき、対象がファイルかフォルダかをいちいち気にしたくありません。単なる「アイテム」として扱いたいはずです。
+このように、**単一のオブジェクトと集合オブジェクトを同一視して扱う**のが Composite パターンです。
+
+### 💡 コンセプト
+
+オブジェクトを木構造に構成して、部分と全体の階層を表現します。Composite パターンを使うと、クライアントは個々のオブジェクトとオブジェクトの合成物を一貫して扱うことができます。
+
+```mermaid
+classDiagram
+    class Component {
+        <<interface>>
+        +Operation()
+    }
+    class Leaf {
+        +Operation()
+    }
+    class Composite {
+        -children []Component
+        +Operation()
+        +Add(Component)
+    }
+    Component <|.. Leaf
+    Component <|.. Composite
+    Composite o-- Component
+```
+
+### 🐹 Go 実装の極意
+
+Go では、`Leaf`（例：`File`）と `Composite`（例：`Directory`）の両方の構造体に同じインターフェースを実装させます。
+`Composite` 側はそのインターフェースのスライスを保持することで、中身が Leaf なのか Composite なのかを気にせずに保持・操作できます。
+
+```go
+type Component interface {
+    Search(keyword string)
+}
+
+type File struct {
+    Name string
+}
+func (f *File) Search(k string) { /* ファイル内を検索 */ }
+
+type Directory struct {
+    Name       string
+    Components []Component
+}
+func (d *Directory) Search(k string) {
+    for _, c := range d.Components {
+        c.Search(k) // 再帰的に呼び出し
+    }
+}
+```
+
+### 🧪 ハンズオン
+
+`composite-example` で、より深い階層（例：`root/home/user/docs/resume.pdf`）を構築してみましょう。
+その後、`root` に対して `Search` を呼び出し、自動的にすべての階層が辿られることを確認してください。
+
+### ❓ クイズ
+
+**Q3. Composite パターンの最大の利点は？**
+A. 実行速度が向上する
+B. 共通のインターフェースを通じて、単一オブジェクトと集合オブジェクトを区別なく扱える
+C. 定義するインターフェースの数を減らせる
+
+<details>
+<summary>正解</summary>
+**B**. クライアント側で Leaf と Composite を判別するロジックが不要になり、コードがシンプルになります。
 </details>
 
 ---

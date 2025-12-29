@@ -76,7 +76,7 @@ Patterns for composing objects and classes into larger structures.
 
 - [**Adapter**](./adapter-example) (`adapter-example`): Connects incompatible interfaces.
 - [**Decorator**](./decorator-example) (`decorator-example`): Layers additional behavior dynamically.
-- **Composite** (`composite-example`): Treats parts and wholes uniformly.
+- [**Composite**](./composite-example) (`composite-example`): Treats parts and wholes uniformly.
 - [**Facade**](./facade-example) (`facade-example`): Provides a simple façade over a complex subsystem.
 - [**Proxy**](./proxy-example) (`proxy-example`): Controls access or delays initialization.
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many objects efficiently.

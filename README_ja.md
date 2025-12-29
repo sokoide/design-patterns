@@ -76,7 +76,7 @@ go test ./...
 
 - [**Adapter**](./adapter-example) (`adapter-example`): 互換性のないインターフェース同士をつなぎます。
 - [**Decorator**](./decorator-example) (`decorator-example`): 既存オブジェクトに機能を動的に重ねます。
-- **Composite** (`composite-example`): 部分と全体を同一視し、木構造を同じ操作で扱えるようにします。
+- [**Composite**](./composite-example) (`composite-example`): 部分と全体を同一視し、木構造を同じ操作で扱えるようにします。
 - [**Facade**](./facade-example) (`facade-example`): 複雑なサブシステムに対して単純な窓口を提供します。
 - [**Proxy**](./proxy-example) (`proxy-example`): 本体の代わりに代理が処理し、アクセス制御や遅延初期化を行います。
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): 共有により多数のインスタンスを効率よく扱います。

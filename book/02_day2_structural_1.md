@@ -5,10 +5,11 @@ Today, we move into "Structural" patterns.
 How should we combine classes and objects to create structures that are resistant to change and easy to reuse?
 You often hear the phrase "composition over inheritance," and the essence of that lies here.
 
-Today, we will learn the following two patterns:
+Today, we will learn the following three patterns:
 
 1.  **Adapter**: Connecting two people who speak different languages
 2.  **Decorator**: Adding features like dressing up a doll
+3.  **Composite**: Treating parts and wholes uniformly
 
 ---
 
@@ -162,6 +163,84 @@ C. You can easily create Singletons.
 <details>
 <summary>Answer</summary>
 **A**. Instead of a static inheritance relationship, you can combine functions dynamically at runtime.
+</details>
+
+---
+
+## 4. Composite
+
+### 📖 Story: The File System
+
+Think about your computer's files and folders.
+A "file" is an individual item. A "folder" is a container that can hold files.
+But wait—a "folder" can also hold other "folders."
+When you "Search for a file" or "Calculate total size," you don't want to care whether you are looking at a file or a folder. You just want to treat them as "items" in the system.
+This is the **Composite Pattern**: treating individual objects and groups of objects uniformly.
+
+### 💡 Concept
+
+Composes objects into tree structures to represent part-whole hierarchies. Composite lets clients treat individual objects and compositions of objects uniformly.
+
+```mermaid
+classDiagram
+    class Component {
+        <<interface>>
+        +Operation()
+    }
+    class Leaf {
+        +Operation()
+    }
+    class Composite {
+        -children []Component
+        +Operation()
+        +Add(Component)
+    }
+    Component <|.. Leaf
+    Component <|.. Composite
+    Composite o-- Component
+```
+
+### 🐹 The Essence of Go Implementation
+
+In Go, both the `Leaf` (e.g., `File`) and `Composite` (e.g., `Directory`) structs implement the same interface.
+The `Composite` holds a slice of that interface, allowing it to contain both leaves and other composites.
+
+```go
+type Component interface {
+    Search(keyword string)
+}
+
+type File struct {
+    Name string
+}
+func (f *File) Search(k string) { /* search in file */ }
+
+type Directory struct {
+    Name       string
+    Components []Component
+}
+func (d *Directory) Search(k string) {
+    for _, c := range d.Components {
+        c.Search(k) // Recursively call
+    }
+}
+```
+
+### 🧪 Hands-on
+
+In `composite-example`, try building a deeper tree (e.g., `root/home/user/docs/resume.pdf`).
+Then call `Search` on the `root` and see how it traverses through every level automatically.
+
+### ❓ Quiz
+
+**Q3. What is the main advantage of the Composite pattern?**
+A. It makes the code faster.
+B. Clients can treat individual objects and compositions uniformly through a common interface.
+C. It reduces the number of interfaces needed.
+
+<details>
+<summary>Answer</summary>
+**B**. It simplifies client code by removing the need to distinguish between leaf and composite nodes.
 </details>
 
 ---
