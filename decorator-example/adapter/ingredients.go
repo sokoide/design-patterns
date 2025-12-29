@@ -7,6 +7,7 @@ import "decorator-example/domain"
 // Espresso is a concrete component.
 type Espresso struct{}
 
+// NewEspresso returns a base espresso beverage.
 func NewEspresso() *Espresso {
 	return &Espresso{}
 }
@@ -22,6 +23,7 @@ func (e *Espresso) GetCost() float64 {
 // HouseBlend is another concrete component.
 type HouseBlend struct{}
 
+// NewHouseBlend returns a base house blend beverage.
 func NewHouseBlend() *HouseBlend {
 	return &HouseBlend{}
 }
@@ -41,6 +43,7 @@ type Mocha struct {
 	beverage domain.Beverage
 }
 
+// NewMocha wraps a beverage with mocha.
 func NewMocha(b domain.Beverage) *Mocha {
 	return &Mocha{beverage: b}
 }
@@ -58,6 +61,7 @@ type Whip struct {
 	beverage domain.Beverage
 }
 
+// NewWhip wraps a beverage with whip.
 func NewWhip(b domain.Beverage) *Whip {
 	return &Whip{beverage: b}
 }
@@ -75,6 +79,7 @@ type Soy struct {
 	beverage domain.Beverage
 }
 
+// NewSoy wraps a beverage with soy.
 func NewSoy(b domain.Beverage) *Soy {
 	return &Soy{beverage: b}
 }

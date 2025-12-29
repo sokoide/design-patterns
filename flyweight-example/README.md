@@ -32,16 +32,16 @@ classDiagram
     namespace Domain {
         class TreeType {
             <<Flyweight>>
-            +Name string
-            +Color string
-            +Texture string
+            -name string
+            -color string
+            -texture string
             +Draw(drawer Drawer, x int, y int)
         }
         class Tree {
             <<Context>>
-            +X int
-            +Y int
-            -Type *TreeType
+            -x int
+            -y int
+            -treeType *TreeType
             +Draw(drawer Drawer)
         }
         class Drawer {
@@ -80,7 +80,7 @@ classDiagram
 
 ### Role of Each Layer
 
-1. **Domain (`/domain`)**: Contains the `TreeType` (Flyweight) and `Tree` (Context) logic. It defines the `Drawer` interface to avoid direct side effects.
+1. **Domain (`/domain`)**: Contains the `TreeType` (Flyweight) and `Tree` (Context) logic. They are constructed via `NewTreeType`/`NewTree` and use private fields to keep state internal. It defines the `Drawer` interface to avoid direct side effects.
 2. **Usecase (`/usecase`)**: Contains the `Forest` logic, which acts as the manager for the collection of trees and uses the factory to optimize creation.
 3. **Adapter (`/adapter`)**: Contains the `TreeFactory`, which handles the caching and reuse of Flyweights, and the `ConsoleDrawer` for output.
 

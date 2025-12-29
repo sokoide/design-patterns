@@ -1,11 +1,13 @@
 package domain
 
+// Lighting controls the room lights.
 type Lighting interface {
 	On()
 	Off()
 	Dim(level int)
 }
 
+// AudioSystem controls playback and audio settings.
 type AudioSystem interface {
 	On()
 	Off()
@@ -13,6 +15,7 @@ type AudioSystem interface {
 	SetSource(source string)
 }
 
+// Projector controls display projection.
 type Projector interface {
 	On()
 	Off()
@@ -20,11 +23,13 @@ type Projector interface {
 	WideScreenMode()
 }
 
+// Screen controls the projection screen.
 type Screen interface {
 	Up()
 	Down()
 }
 
+// CoffeeMaker controls coffee machine operations.
 type CoffeeMaker interface {
 	On()
 	Off()

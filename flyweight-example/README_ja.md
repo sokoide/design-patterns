@@ -32,16 +32,16 @@ classDiagram
     namespace Domain {
         class TreeType {
             <<Flyweight>>
-            +Name string
-            +Color string
-            +Texture string
+            -name string
+            -color string
+            -texture string
             +Draw(drawer Drawer, x int, y int)
         }
         class Tree {
             <<Context>>
-            +X int
-            +Y int
-            -Type *TreeType
+            -x int
+            -y int
+            -treeType *TreeType
             +Draw(drawer Drawer)
         }
         class Drawer {
@@ -80,7 +80,7 @@ classDiagram
 
 ### 各レイヤーの役割
 
-1. **Domain (`/domain`)**: `TreeType` (Flyweight) と `Tree` (Context) のロジックを含みます。直接的な副作用を避けるために `Drawer` インターフェースを定義しています。
+1. **Domain (`/domain`)**: `TreeType` (Flyweight) と `Tree` (Context) のロジックを含みます。`NewTreeType`/`NewTree` で生成し、状態は非公開フィールドで保持します。直接的な副作用を避けるために `Drawer` インターフェースを定義しています。
 2. **Usecase (`/usecase`)**: 木のコレクションを管理し、ファクトリを使用して生成を最適化する `Forest` ロジックを含みます。
 3. **Adapter (`/adapter`)**: Flyweight のキャッシュと再利用を担当する `TreeFactory` と、出力用の `ConsoleDrawer` を含みます。
 

@@ -5,6 +5,7 @@ import "fmt"
 // ConsoleLogger implements domain.Logger and prints to stdout.
 type ConsoleLogger struct{}
 
+// NewConsoleLogger creates a ConsoleLogger.
 func NewConsoleLogger() *ConsoleLogger {
 	return &ConsoleLogger{}
 }

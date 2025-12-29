@@ -12,8 +12,10 @@ var (
 )
 
 // --- 1. Locked State ---
+// LockedState represents a locked door.
 type LockedState struct{}
 
+// NewLockedState builds a LockedState.
 func NewLockedState() *LockedState {
 	return &LockedState{}
 }
@@ -35,8 +37,10 @@ func (s *LockedState) Handle(action domain.Action) (domain.DoorState, string, er
 }
 
 // --- 2. Closed (Unlocked) State ---
+// ClosedUnlockedState represents a closed but unlocked door.
 type ClosedUnlockedState struct{}
 
+// NewClosedUnlockedState builds a ClosedUnlockedState.
 func NewClosedUnlockedState() *ClosedUnlockedState {
 	return &ClosedUnlockedState{}
 }
@@ -58,8 +62,10 @@ func (s *ClosedUnlockedState) Handle(action domain.Action) (domain.DoorState, st
 }
 
 // --- 3. Open State ---
+// OpenState represents an open door.
 type OpenState struct{}
 
+// NewOpenState builds an OpenState.
 func NewOpenState() *OpenState {
 	return &OpenState{}
 }

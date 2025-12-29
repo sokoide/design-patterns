@@ -14,11 +14,13 @@ var (
 
 // --- 1. Email Notifier ---
 
+// EmailNotifier sends updates via email.
 type EmailNotifier struct {
 	emailAddress string
 	logger       domain.Logger
 }
 
+// NewEmailNotifier builds an EmailNotifier.
 func NewEmailNotifier(email string, logger domain.Logger) *EmailNotifier {
 	return &EmailNotifier{
 		emailAddress: email,
@@ -32,11 +34,13 @@ func (e *EmailNotifier) OnUpdate(event string) {
 
 // --- 2. Slack Notifier ---
 
+// SlackNotifier sends updates to Slack.
 type SlackNotifier struct {
 	webhookID string
 	logger    domain.Logger
 }
 
+// NewSlackNotifier builds a SlackNotifier.
 func NewSlackNotifier(webhookID string, logger domain.Logger) *SlackNotifier {
 	return &SlackNotifier{
 		webhookID: webhookID,
@@ -51,10 +55,12 @@ func (s *SlackNotifier) OnUpdate(event string) {
 // --- 3. Logger Notifier ---
 // Ideally this wraps the logger itself to log events as a distinct observer.
 
+// LogNotifier logs updates using the provided logger.
 type LogNotifier struct {
 	logger domain.Logger
 }
 
+// NewLogNotifier builds a LogNotifier.
 func NewLogNotifier(logger domain.Logger) *LogNotifier {
 	return &LogNotifier{logger: logger}
 }

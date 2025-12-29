@@ -17,22 +17,23 @@ var (
 
 // CreditCardStrategy implements the PaymentMethod interface for Credit Card payments.
 type CreditCardStrategy struct {
-	CardNumber string
-	CVV        string
+	cardNumber string
+	cvv        string
 }
 
+// NewCreditCardStrategy builds a CreditCardStrategy.
 func NewCreditCardStrategy(cardNumber, cvv string) *CreditCardStrategy {
 	return &CreditCardStrategy{
-		CardNumber: cardNumber,
-		CVV:        cvv,
+		cardNumber: cardNumber,
+		cvv:        cvv,
 	}
 }
 
 func (c *CreditCardStrategy) Pay(amount float64) error {
-	if c.CardNumber == "" {
+	if c.cardNumber == "" {
 		return errors.New("credit card number is empty")
 	}
-	last4 := c.CardNumber
+	last4 := c.cardNumber
 	if len(last4) > 4 {
 		last4 = last4[len(last4)-4:]
 	}
@@ -42,81 +43,85 @@ func (c *CreditCardStrategy) Pay(amount float64) error {
 
 // PayPalStrategy implements the PaymentMethod interface for PayPal payments.
 type PayPalStrategy struct {
-	Email string
+	email string
 }
 
+// NewPayPalStrategy builds a PayPalStrategy.
 func NewPayPalStrategy(email string) *PayPalStrategy {
 	return &PayPalStrategy{
-		Email: email,
+		email: email,
 	}
 }
 
 func (p *PayPalStrategy) Pay(amount float64) error {
-	if p.Email == "" {
+	if p.email == "" {
 		return errors.New("paypal account email is empty")
 	}
-	fmt.Printf("Paying $%.2f using PayPal (Account: %s)\n", amount, p.Email)
+	fmt.Printf("Paying $%.2f using PayPal (Account: %s)\n", amount, p.email)
 	return nil
 }
 
 // BitcoinStrategy implements the PaymentMethod interface for Bitcoin payments.
 type BitcoinStrategy struct {
-	WalletAddress string
+	walletAddress string
 }
 
+// NewBitcoinStrategy builds a BitcoinStrategy.
 func NewBitcoinStrategy(wallet string) *BitcoinStrategy {
 	return &BitcoinStrategy{
-		WalletAddress: wallet,
+		walletAddress: wallet,
 	}
 }
 
 func (b *BitcoinStrategy) Pay(amount float64) error {
-	if b.WalletAddress == "" {
+	if b.walletAddress == "" {
 		return errors.New("bitcoin wallet address is empty")
 	}
-	fmt.Printf("Paying $%.2f using Bitcoin (Wallet: %s)\n", amount, b.WalletAddress)
+	fmt.Printf("Paying $%.2f using Bitcoin (Wallet: %s)\n", amount, b.walletAddress)
 	return nil
 }
 
 // StandardShippingStrategy implements the ShippingMethod interface for regular deliveries.
 type StandardShippingStrategy struct {
-	Carrier     string
-	TransitDays int
+	carrier     string
+	transitDays int
 }
 
+// NewStandardShippingStrategy builds a StandardShippingStrategy.
 func NewStandardShippingStrategy(carrier string, transitDays int) *StandardShippingStrategy {
 	return &StandardShippingStrategy{
-		Carrier:     carrier,
-		TransitDays: transitDays,
+		carrier:     carrier,
+		transitDays: transitDays,
 	}
 }
 
 func (s *StandardShippingStrategy) Ship(destination string) error {
-	if s.Carrier == "" {
+	if s.carrier == "" {
 		return errors.New("shipping carrier is empty")
 	}
-	if s.TransitDays <= 0 {
+	if s.transitDays <= 0 {
 		return errors.New("invalid transit days")
 	}
-	fmt.Printf("Scheduling standard %s shipping to %s (ETA: %d days)\n", s.Carrier, destination, s.TransitDays)
+	fmt.Printf("Scheduling standard %s shipping to %s (ETA: %d days)\n", s.carrier, destination, s.transitDays)
 	return nil
 }
 
 // ExpressShippingStrategy implements the ShippingMethod interface for express deliveries.
 type ExpressShippingStrategy struct {
-	Carrier string
+	carrier string
 }
 
+// NewExpressShippingStrategy builds an ExpressShippingStrategy.
 func NewExpressShippingStrategy(carrier string) *ExpressShippingStrategy {
 	return &ExpressShippingStrategy{
-		Carrier: carrier,
+		carrier: carrier,
 	}
 }
 
 func (e *ExpressShippingStrategy) Ship(destination string) error {
-	if e.Carrier == "" {
+	if e.carrier == "" {
 		return errors.New("shipping carrier is empty")
 	}
-	fmt.Printf("Scheduling express %s shipping to %s (Next day delivery)\n", e.Carrier, destination)
+	fmt.Printf("Scheduling express %s shipping to %s (Next day delivery)\n", e.carrier, destination)
 	return nil
 }

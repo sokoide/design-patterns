@@ -4,10 +4,12 @@ import (
 	"facade-example/domain"
 )
 
+// Screen is a concrete screen subsystem.
 type Screen struct {
 	logger domain.Logger
 }
 
+// NewScreen builds a screen adapter.
 func NewScreen(logger domain.Logger) *Screen {
 	return &Screen{logger: logger}
 }

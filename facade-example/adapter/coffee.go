@@ -4,10 +4,12 @@ import (
 	"facade-example/domain"
 )
 
+// CoffeeMaker is a concrete coffee subsystem.
 type CoffeeMaker struct {
 	logger domain.Logger
 }
 
+// NewCoffeeMaker builds a coffee maker adapter.
 func NewCoffeeMaker(logger domain.Logger) *CoffeeMaker {
 	return &CoffeeMaker{logger: logger}
 }

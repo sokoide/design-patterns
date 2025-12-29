@@ -22,6 +22,7 @@ var (
 	ErrInvalidAction = errors.New("action not valid for current state")
 )
 
+// Logger abstracts logging for the domain.
 type Logger interface {
 	Log(message string)
 }

@@ -5,19 +5,21 @@ import (
 	"proxy-example/domain"
 )
 
+// Nginx is a proxy with basic rate limiting.
 type Nginx struct {
-	application       domain.Server
-	maxAllowedRequest int
-	rateLimiter       map[string]int
-	logger            domain.Logger
+	application        domain.Server
+	maxAllowedRequests int
+	rateLimiter        map[string]int
+	logger             domain.Logger
 }
 
+// NewNginx builds an Nginx proxy with defaults.
 func NewNginx(app domain.Server, logger domain.Logger) *Nginx {
 	return &Nginx{
-		application:       app,
-		maxAllowedRequest: 2,
-		rateLimiter:       make(map[string]int),
-		logger:            logger,
+		application:        app,
+		maxAllowedRequests: 2,
+		rateLimiter:        make(map[string]int),
+		logger:             logger,
 	}
 }
 
@@ -32,7 +34,7 @@ func (n *Nginx) HandleRequest(url, method string) (int, string) {
 }
 
 func (n *Nginx) checkRateLimiting(url string) bool {
-	if n.rateLimiter[url] >= n.maxAllowedRequest {
+	if n.rateLimiter[url] >= n.maxAllowedRequests {
 		return false
 	}
 	n.rateLimiter[url]++

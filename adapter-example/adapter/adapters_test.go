@@ -32,9 +32,9 @@ func TestMac_InsertIntoLightningPort(t *testing.T) {
 func TestWindowsAdapter_InsertIntoLightningPort(t *testing.T) {
 	logger := &MockLogger{}
 	windows := adapter.NewWindows(logger)
-	adapter := adapter.NewWindowsAdapter(windows, logger)
+	windowsAdapter := adapter.NewWindowsAdapter(windows, logger)
 
-	adapter.InsertIntoLightningPort()
+	windowsAdapter.InsertIntoLightningPort()
 
 	if len(logger.Logs) != 2 {
 		t.Errorf("expected 2 logs (adapter + windows), got %d", len(logger.Logs))

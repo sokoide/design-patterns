@@ -12,6 +12,7 @@ type Editor struct {
 	logger domain.Logger
 }
 
+// NewEditor builds an editor with an empty buffer.
 func NewEditor(logger domain.Logger) *Editor {
 	return &Editor{
 		buffer: domain.NewBuffer(),

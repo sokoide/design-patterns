@@ -25,7 +25,7 @@ go run main.go
 ### 登場人物
 
 1.  **Originator (`adapter.Editor`)**: 状態を持っている本人。「スナップショットを作る(`CreateMemento`)」「スナップショットから復元する(`Restore`)」機能を提供します。
-2.  **Memento (`domain.Memento`)**: 状態の保存箱。中身を持っていますが、Originator以外には中身をいじらせないようにします（Goではフィールドの公開設定で制御）。
+2.  **Memento (`domain.Memento`)**: 状態の保存箱。パッケージ非公開フィールドと読み取り用アクセサで、Originator以外が中身を変更できないようにします。
 3.  **Caretaker (`usecase.WriterService`)**: Mementoの管理人。Mementoを預かっておきます（配列などで履歴管理）が、Mementoの中身を勝手にいじったりはしません。
 
 ## 🏗 アーキテクチャ構成
@@ -35,7 +35,7 @@ classDiagram
     namespace domain {
         class Memento {
             -state: string
-            +GetSavedState() string
+            +State() string
         }
         class Editor {
             <<interface>>
@@ -84,7 +84,7 @@ classDiagram
 ### 各レイヤーの役割
 
 1.  **Domain (`/domain`)**:
-    *   `Memento`: 状態だけを持つ構造体。
+    *   `Memento`: 状態だけを持つ構造体（`NewMemento`で生成し、読み取り専用のアクセサで取得）。
     *   `Editor` (Interface): エディタの振る舞い（入力、保存、復元）を定義します。
 2.  **Usecase (`/usecase`)**:
     *   `WriterService` (Caretaker): 文章の作成プロセスとMementoの履歴を管理します。いつ保存し、いつUndoするかを制御します。

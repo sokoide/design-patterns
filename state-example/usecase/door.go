@@ -12,6 +12,7 @@ type DoorContext struct {
 	logger       domain.Logger
 }
 
+// NewDoorContext builds a DoorContext with an initial state.
 func NewDoorContext(initialState domain.DoorState, logger domain.Logger) *DoorContext {
 	return &DoorContext{
 		currentState: initialState,
@@ -33,6 +34,7 @@ func (d *DoorContext) ExecuteAction(action domain.Action) {
 	d.currentState = nextState
 }
 
+// GetStateName returns the current state name.
 func (d *DoorContext) GetStateName() string {
 	return d.currentState.Name()
 }

@@ -20,12 +20,12 @@ func (m *MockEditor) GetContent() string {
 }
 
 func (m *MockEditor) CreateMemento() *domain.Memento {
-	return &domain.Memento{State: m.Content}
+	return domain.NewMemento(m.Content)
 }
 
 func (m *MockEditor) Restore(mem *domain.Memento) {
 	if mem != nil {
-		m.Content = mem.State
+		m.Content = mem.State()
 	}
 }
 

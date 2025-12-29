@@ -5,10 +5,12 @@ import (
 	"proxy-example/domain"
 )
 
+// AppServer is the real subject handling requests.
 type AppServer struct {
 	logger domain.Logger
 }
 
+// NewAppServer builds an application server.
 func NewAppServer(logger domain.Logger) *AppServer {
 	return &AppServer{logger: logger}
 }

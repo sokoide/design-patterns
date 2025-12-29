@@ -5,10 +5,12 @@ import (
 	"fmt"
 )
 
+// Lighting is a concrete lighting subsystem.
 type Lighting struct {
 	logger domain.Logger
 }
 
+// NewLighting builds a lighting adapter.
 func NewLighting(logger domain.Logger) *Lighting {
 	return &Lighting{logger: logger}
 }

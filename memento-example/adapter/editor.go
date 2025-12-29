@@ -1,16 +1,18 @@
 package adapter
 
-import (
-	"memento-example/domain"
-)
+import "memento-example/domain"
 
-// Originator
+// Editor is the originator that produces and consumes mementos.
 type Editor struct {
 	content string
 }
 
 func (e *Editor) Type(words string) {
-	e.content = e.content + " " + words
+	if e.content == "" {
+		e.content = words
+		return
+	}
+	e.content += " " + words
 }
 
 func (e *Editor) GetContent() string {
@@ -18,12 +20,12 @@ func (e *Editor) GetContent() string {
 }
 
 func (e *Editor) CreateMemento() *domain.Memento {
-	return &domain.Memento{State: e.content}
+	return domain.NewMemento(e.content)
 }
 
 func (e *Editor) Restore(m *domain.Memento) {
 	if m == nil {
 		return
 	}
-	e.content = m.GetSavedState()
+	e.content = m.State()
 }

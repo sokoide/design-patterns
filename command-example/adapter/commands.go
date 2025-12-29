@@ -13,11 +13,13 @@ var (
 
 // --- 1. Insert Command ---
 
+// InsertCommand appends text to the buffer.
 type InsertCommand struct {
 	textToInsert string
 	logger       domain.Logger
 }
 
+// NewInsertCommand builds an InsertCommand.
 func NewInsertCommand(text string, logger domain.Logger) *InsertCommand {
 	return &InsertCommand{
 		textToInsert: text,
@@ -49,6 +51,7 @@ type DeleteCommand struct {
 	logger      domain.Logger
 }
 
+// NewDeleteCommand builds a DeleteCommand.
 func NewDeleteCommand(count int, logger domain.Logger) *DeleteCommand {
 	return &DeleteCommand{
 		count:  count,

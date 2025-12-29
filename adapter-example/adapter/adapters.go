@@ -4,7 +4,7 @@ import (
 	"adapter-example/domain"
 )
 
-// Ensure implementations
+// Ensure implementations.
 var (
 	_ domain.Computer = (*Mac)(nil)
 	_ domain.Computer = (*WindowsAdapter)(nil)
@@ -15,6 +15,7 @@ type Mac struct {
 	logger domain.Logger
 }
 
+// NewMac builds a Mac with the provided logger.
 func NewMac(logger domain.Logger) *Mac {
 	return &Mac{logger: logger}
 }
@@ -28,6 +29,7 @@ type Windows struct {
 	logger domain.Logger
 }
 
+// NewWindows builds a Windows machine with the provided logger.
 func NewWindows(logger domain.Logger) *Windows {
 	return &Windows{logger: logger}
 }
@@ -38,18 +40,19 @@ func (w *Windows) insertIntoUSBPort() {
 
 // WindowsAdapter makes Windows look like a Computer (Lightning).
 type WindowsAdapter struct {
-	windowMachine *Windows
-	logger        domain.Logger
+	windowsMachine *Windows
+	logger         domain.Logger
 }
 
-func NewWindowsAdapter(w *Windows, logger domain.Logger) *WindowsAdapter {
+// NewWindowsAdapter wraps a Windows machine with a Lightning adapter.
+func NewWindowsAdapter(windows *Windows, logger domain.Logger) *WindowsAdapter {
 	return &WindowsAdapter{
-		windowMachine: w,
-		logger:        logger,
+		windowsMachine: windows,
+		logger:         logger,
 	}
 }
 
 func (w *WindowsAdapter) InsertIntoLightningPort() {
 	w.logger.Log("Adapter converts Lightning signal to USB.")
-	w.windowMachine.insertIntoUSBPort()
+	w.windowsMachine.insertIntoUSBPort()
 }

@@ -14,6 +14,7 @@ type MarketSystem struct {
 	logger    domain.Logger
 }
 
+// NewMarketSystem builds a MarketSystem with an initial price.
 func NewMarketSystem(item string, price float64, logger domain.Logger) *MarketSystem {
 	return &MarketSystem{
 		itemName: item,
@@ -24,10 +25,12 @@ func NewMarketSystem(item string, price float64, logger domain.Logger) *MarketSy
 
 // --- Subject Implementation ---
 
+// Register adds an observer to the list.
 func (m *MarketSystem) Register(o domain.Observer) {
 	m.observers = append(m.observers, o)
 }
 
+// Unregister removes an observer from the list.
 func (m *MarketSystem) Unregister(o domain.Observer) {
 	filtered := m.observers[:0]
 	for _, observer := range m.observers {
@@ -50,6 +53,7 @@ func (m *MarketSystem) NotifyAll() {
 
 // --- Business Logic ---
 
+// UpdatePrice sets a new price and notifies observers.
 func (m *MarketSystem) UpdatePrice(newPrice float64) {
 	m.logger.Log(fmt.Sprintf("\n[Market] Updating price from $%.2f to $%.2f", m.price, newPrice))
 	m.price = newPrice

@@ -6,11 +6,13 @@ import (
 
 // --- Reception ---
 
+// Reception registers the patient and passes to the next department.
 type Reception struct {
 	next   domain.Department
 	logger domain.Logger
 }
 
+// NewReception builds a reception department.
 func NewReception(logger domain.Logger) *Reception {
 	return &Reception{logger: logger}
 }
@@ -36,11 +38,13 @@ func (r *Reception) SetNext(next domain.Department) {
 
 // --- Doctor ---
 
+// Doctor performs the checkup and passes to the next department.
 type Doctor struct {
 	next   domain.Department
 	logger domain.Logger
 }
 
+// NewDoctor builds a doctor department.
 func NewDoctor(logger domain.Logger) *Doctor {
 	return &Doctor{logger: logger}
 }
@@ -66,11 +70,13 @@ func (d *Doctor) SetNext(next domain.Department) {
 
 // --- Cashier ---
 
+// Cashier handles payments and passes to the next department.
 type Cashier struct {
 	next   domain.Department
 	logger domain.Logger
 }
 
+// NewCashier builds a cashier department.
 func NewCashier(logger domain.Logger) *Cashier {
 	return &Cashier{logger: logger}
 }

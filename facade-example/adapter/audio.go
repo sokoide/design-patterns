@@ -5,10 +5,12 @@ import (
 	"fmt"
 )
 
+// AudioSystem is a concrete audio subsystem.
 type AudioSystem struct {
 	logger domain.Logger
 }
 
+// NewAudioSystem builds an audio system adapter.
 func NewAudioSystem(logger domain.Logger) *AudioSystem {
 	return &AudioSystem{logger: logger}
 }

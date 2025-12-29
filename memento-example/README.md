@@ -25,7 +25,7 @@ By creating a dedicated storage box called a "Memento," packing the state into i
 ### Characters
 
 1. **Originator (`adapter.Editor`)**: The object that has the state. It provides functions to "create a snapshot (`CreateMemento`)" and "restore from a snapshot (`Restore`)."
-2. **Memento (`domain.Memento`)**: The storage box for the state. It holds the state, but it is designed so that no one other than the Originator can modify it (controlled by field visibility in Go).
+2. **Memento (`domain.Memento`)**: The storage box for the state. It holds the state via package-private fields and exposes a read-only accessor, so only the Originator can construct it.
 3. **Caretaker (`usecase.WriterService`)**: The manager of Mementos. It stores Mementos (managing history with an array) but does not tamper with the contents of the Memento. It orchestrates the writing and undoing process.
 
 ## 🏗 Architecture
@@ -35,7 +35,7 @@ classDiagram
     namespace domain {
         class Memento {
             -state: string
-            +GetSavedState() string
+            +State() string
         }
         class Editor {
             <<interface>>
@@ -84,7 +84,7 @@ classDiagram
 ### Role of Each Layer
 
 1. **Domain (`/domain`)**:
-    * `Memento`: A struct that only holds the state.
+    * `Memento`: A struct that only holds the state (created via `NewMemento` and exposed via a read-only accessor).
     * `Editor` (Interface): Defines the behavior of the editor (typing, saving state, restoring).
 2. **Usecase (`/usecase`)**:
     * `WriterService` (Caretaker): Manages the writing process and the history of Mementos. It decides when to save a snapshot and when to undo.

@@ -5,10 +5,12 @@ import (
 	"fmt"
 )
 
+// Projector is a concrete projector subsystem.
 type Projector struct {
 	logger domain.Logger
 }
 
+// NewProjector builds a projector adapter.
 func NewProjector(logger domain.Logger) *Projector {
 	return &Projector{logger: logger}
 }
