@@ -48,27 +48,28 @@ Go では、既存のライブラリや外部 API の構造体を、自分のド
 「継承」がない Go では、構造体の埋め込みやフィールドとしての保持（コンポジション）で実装します。
 
 ```go
-// Target Interface
-type Logger interface {
-    Log(msg string)
+// 自分のドメインのインターフェース
+type Computer interface {
+    InsertIntoLightningPort()
 }
 
-// Adaptee (3rd party library)
-type FancyLogger struct {}
-func (f *FancyLogger) FancyLog(msg string) { fmt.Println("***" + msg + "***") }
+// 既存の（互換性のない）構造体
+type Windows struct {}
+func (w *Windows) insertIntoUSBPort() { fmt.Println("USB plugged") }
 
 // Adapter
-type LoggerAdapter struct {
-    fancyLogger *FancyLogger
+type WindowsAdapter struct {
+    windowMachine *Windows
 }
-func (l *LoggerAdapter) Log(msg string) {
-    l.fancyLogger.FancyLog(msg) // 変換して呼び出し
+func (w *WindowsAdapter) InsertIntoLightningPort() {
+    w.windowMachine.insertIntoUSBPort() // 変換して呼び出し
 }
 ```
 
 ### 🧪 ハンズオン
 
-`adapter-example` ディレクトリで、新しい `Adaptee`（例えば `JsonLogger`）を作成し、それを `Target` インターフェースに適合させる `Adapter` を書いてみましょう。
+`adapter-example` ディレクトリで、新しい `Adaptee`（例えば `Linux` マシン）を作成し、それを `Computer` インターフェースに適合させる `Adapter` を書いてみましょう。
+Lightning ポートを期待するクライアントが、Adapter 経由で Linux の USB ポートを使えるようにします。
 
 ### ❓ クイズ
 
@@ -117,26 +118,39 @@ classDiagram
 ### 🐹 Go 実装の極意
 
 Go では `http.Handler` のミドルウェアがまさにこれです。
-`func(next http.Handler) http.Handler` のように、ハンドラを受け取って新しいハンドラを返す関数は、Decorator パターンそのものです。
+既存のハンドラを別のハンドラで「包み込む」ことで、認証やログなどの機能を後付けできます。
 
 ```go
-type Pizza interface {
-    GetPrice() int
+// ミドルウェア（Decorator）の例
+func LoggingMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        fmt.Println("Before")
+        next.ServeHTTP(w, r) // 包んでいる元のオブジェクト（next）を呼び出す
+        fmt.Println("After")
+    })
+}
+```
+
+一般的な構造のイメージは以下の通りです（詳細は `decorator-example` を参照）。
+
+```go
+type Beverage interface {
+    GetCost() float64
 }
 
-type TomatoTopping struct {
-    pizza Pizza
+type MilkDecorator struct {
+    beverage Beverage // 元のオブジェクトを保持
 }
 
-func (t *TomatoTopping) GetPrice() int {
-    return t.pizza.GetPrice() + 100 // 元の価格に上乗せ
+func (m *MilkDecorator) GetCost() float64 {
+    return m.beverage.GetCost() + 0.15 // 元の機能に「上乗せ」する
 }
 ```
 
 ### 🧪 ハンズオン
 
-`decorator-example` で、新しいトッピング（例: `CheeseTopping`）を作成し、ピザの価格計算に追加してみましょう。
-トッピングの順番を変えても機能することを確認してください。
+`decorator-example` で、新しいトッピング（例: `Soy`）を作成し、コーヒーの価格計算に追加してみましょう。
+トッピングの順番を変えたり、二重に追加しても機能することを確認してください。
 
 ### ❓ クイズ
 

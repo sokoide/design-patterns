@@ -49,20 +49,20 @@ Go のインターフェースの最も基本的かつ強力な使い方がこ�
 `sort.Slice` で比較関数を渡すのも Strategy パターンの一種です。
 
 ```go
-type Strategy interface {
-    Evict(c *Cache)
+type PaymentMethod interface {
+    Pay(amount float64) error
 }
 
-type Lru struct {}
-func (l *Lru) Evict(c *Cache) { ... }
+type CreditCard struct {}
+func (c *CreditCard) Pay(amount float64) error { ... }
 
-type Fifo struct {}
-func (f *Fifo) Evict(c *Cache) { ... }
+type PayPal struct {}
+func (p *PayPal) Pay(amount float64) error { ... }
 ```
 
 ### 🧪 ハンズオン
 
-`strategy-example` (キャッシュの例) で、新しい削除アルゴリズム（例: Random Eviction）を追加し、実行時に切り替えて動作が変わることを確認しましょう。
+`strategy-example` (決済と配送の例) で、新しい支払い方法（例: `BankTransfer`）を追加し、実行時に切り替えて動作が変わることを確認しましょう。
 
 ### ❓ クイズ
 
@@ -80,12 +80,12 @@ C. 構造体の使用
 
 ## 8. Observer (オブザーバー)
 
-### 📖 ストーリー：YouTuber とチャンネル登録
+### 📖 ストーリー：株価アラート
 
-あなたは好きな YouTuber をチャンネル登録しています。
-YouTuber（Subject）が新しい動画をアップロードすると、登録者（Observer）全員に通知が届きます。
-YouTuber は、誰が登録しているか詳しく知る必要はありません。「登録リスト」に通知を送るだけです。
-もし登録解除すれば、もう通知は来ません。
+あなたは特定の株価をチェックしています。
+株価（Subject）が変動すると、その株をウォッチしている投資家（Observer）全員に通知が届きます。
+株価システムは、誰がウォッチしているか詳しく知る必要はありません。「通知リスト」に更新を送るだけです。
+もしウォッチを止めれば、もう通知は来ません。
 
 ### 💡 コンセプト
 
@@ -95,13 +95,13 @@ YouTuber は、誰が登録しているか詳しく知る必要はありませ�
 classDiagram
     class Subject {
         <<interface>>
-        +Attach(Observer)
-        +Detach(Observer)
-        +Notify()
+        +Register(Observer)
+        +Unregister(Observer)
+        +NotifyAll()
     }
     class Observer {
         <<interface>>
-        +Update()
+        +OnUpdate(string)
     }
     Subject --> Observer
 ```
@@ -110,12 +110,12 @@ classDiagram
 
 Go ではインターフェースを使って実装するのが基本ですが、
 **Go Channels** を使うと、より Go らしい非同期なイベント通知システムが作れます。
-ただし、メモリリークを防ぐために、不要になった Observer を適切に解除（Detach）する仕組みが重要です。
+ただし、メモリリークを防ぐために、不要になった Observer を適切に解除（Unregister）する仕組みが重要です。
 
 ### 🧪 ハンズオン
 
 `observer-example` を見てみましょう。
-新しい種類の Observer（例: `EmailListener`）を作成し、Subject に登録して通知を受け取れるようにしてみてください。
+新しい種類の Observer（例: `MobileAppListener`）を作成し、Subject に登録して通知を受け取れるようにしてみてください。
 
 ### ❓ クイズ
 
@@ -133,12 +133,11 @@ C. バッチ処理
 
 ## 9. Command (コマンド)
 
-### 📖 ストーリー：レストランの注文票
+### 📖 ストーリー：テキストエディタの操作
 
-客がウェイターに「ハンバーガーください」と注文します。
-ウェイターはそれを「注文票（Command）」に書きます。
-その注文票は厨房に置かれ、シェフ（Receiver）が手隙の時にそれを見て料理を作ります。
-注文票という「モノ」になっているので、順番を入れ替えたり、後で「やっぱりキャンセル」したりできます。
+あなたがテキストエディタで「文字を入力」したり「削除」したりするとします。
+それぞれの操作を「コマンド（Command）」としてオブジェクト化します。
+コマンドという「モノ」になっているので、それをスタックに積み上げておくことで、「Undo（元に戻す）」が簡単に実装できます。
 
 ### 💡 コンセプト
 
@@ -153,21 +152,21 @@ classDiagram
     }
     class Command {
         <<interface>>
-        +Execute()
+        +Do(buffer)
+        +Undo(buffer)
     }
     Invoker o-- Command
 ```
 
 ### 🐹 Go 実装の極意
 
-構造体に `Execute()` メソッドを持たせるのが基本です。
+構造体に `Do()` メソッドを持たせるのが基本です。
 CLI ツールを作る際、サブコマンド（`git commit`, `git push`など）をそれぞれ Command パターンで実装すると綺麗に整理できます。
 
 ### 🧪 ハンズオン
 
-`command-example` はテレビのリモコンの例です。
-ここに「Undo（直前の操作を取り消す）」機能を追加してみましょう。
-Command インターフェースに `Undo()` メソッドを追加する必要があります。
+`command-example` はテキストエディタの例です。
+新しいコマンド（例: `InsertTextCommand`）を作成し、`Do` と `Undo` を実装して、バッファの状態が変化することを確認しましょう。
 
 ### ❓ クイズ
 

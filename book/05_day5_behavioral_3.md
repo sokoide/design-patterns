@@ -98,8 +98,8 @@ Who manages the state transition (switching to the next state), the Context or t
 
 ### 🧪 Hands-on
 
-Let's look at `state-example` (the vending machine example).
-Try adding a new state (e.g., "Under Maintenance") and making it transition to that state through a specific operation.
+Let's look at `state-example` (door opening/closing system example).
+Try adding a new state (e.g., "Maintenance") and make it transition to that state with a specific operation.
 
 ### ❓ Quiz
 

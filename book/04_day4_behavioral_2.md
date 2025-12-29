@@ -49,20 +49,20 @@ Implementing it as a function type (`type StrategyFunc func()`) and passing the 
 Passing a comparison function to `sort.Slice` is also a type of Strategy pattern.
 
 ```go
-type Strategy interface {
-    Evict(c *Cache)
+type PaymentMethod interface {
+    Pay(amount float64) error
 }
 
-type Lru struct {}
-func (l *Lru) Evict(c *Cache) { ... }
+type CreditCard struct {}
+func (c *CreditCard) Pay(amount float64) error { ... }
 
-type Fifo struct {}
-func (f *Fifo) Evict(c *Cache) { ... }
+type PayPal struct {}
+func (p *PayPal) Pay(amount float64) error { ... }
 ```
 
 ### 🧪 Hands-on
 
-In `strategy-example` (cache example), try adding a new eviction algorithm (e.g., Random Eviction) and confirm that switching it at runtime changes the behavior.
+In `strategy-example` (payment and shipping example), try adding a new payment method (e.g., `BankTransfer`) and confirm that switching it at runtime changes the behavior.
 
 ### ❓ Quiz
 
@@ -80,12 +80,12 @@ C. Using structs.
 
 ## 8. Observer
 
-### 📖 Story: YouTubers and Channel Subscriptions
+### 📖 Story: Stock Price Alerts
 
-You have subscribed to your favorite YouTuber.
-When the YouTuber (Subject) uploads a new video, a notification is sent to all subscribers (Observers).
-The YouTuber doesn't need to know who is subscribed in detail. They just send a notification to the "subscription list."
-If you unsubscribe, you won't receive notifications anymore.
+You are monitoring specific stock prices.
+When a stock price (Subject) fluctuates, a notification is sent to all investors (Observers) watching that stock.
+The stock price system doesn't need to know who is watching in detail. They just send a notification to the "watch list."
+If you stop watching, you won't receive notifications anymore.
 
 ### 💡 Concept
 
@@ -95,13 +95,13 @@ Automatically notifies other dependent objects when an object's state changes.
 classDiagram
     class Subject {
         <<interface>>
-        +Attach(Observer)
-        +Detach(Observer)
-        +Notify()
+        +Register(Observer)
+        +Unregister(Observer)
+        +NotifyAll()
     }
     class Observer {
         <<interface>>
-        +Update()
+        +OnUpdate(string)
     }
     Subject --> Observer
 ```
@@ -109,12 +109,12 @@ classDiagram
 ### 🐹 The Essence of Go Implementation
 
 While implementing it using interfaces is standard in Go, using **Go Channels** allows you to create a more Go-like asynchronous event notification system.
-However, it's important to have a mechanism to properly unregister (Detach) Observers when they are no longer needed to prevent memory leaks.
+However, it's important to have a mechanism to properly unregister Observers when they are no longer needed to prevent memory leaks.
 
 ### 🧪 Hands-on
 
 Let's look at `observer-example`.
-Try creating a new type of Observer (e.g., `EmailListener`) and registering it with the Subject to receive notifications.
+Try creating a new type of Observer (e.g., `MobileAppListener`) and registering it with the Subject to receive notifications.
 
 ### ❓ Quiz
 
@@ -132,12 +132,11 @@ C. Batch processing.
 
 ## 9. Command
 
-### 📖 Story: The Restaurant Order Slip
+### 📖 Story: Text Editor Operations
 
-A customer tells the waiter, "I'll have a hamburger."
-The waiter writes it on an "order slip (Command)."
-That order slip is placed in the kitchen, and the chef (Receiver) looks at it and cooks when they are free.
-Because it's an "object" called an order slip, you can rearrange the order or "cancel" it later.
+Imagine you are "typing" or "deleting" text in a text editor.
+Each operation is objectified as a "command (Command)."
+Because it is an "object," you can stack them up to easily implement "Undo" and "Redo."
 
 ### 💡 Concept
 
@@ -152,21 +151,21 @@ classDiagram
     }
     class Command {
         <<interface>>
-        +Execute()
+        +Do(buffer)
+        +Undo(buffer)
     }
     Invoker o-- Command
 ```
 
 ### 🐹 The Essence of Go Implementation
 
-The basic idea is to have a struct with an `Execute()` method.
+The basic idea is to have a struct with a `Do()` method.
 When building CLI tools, implementing each sub-command (`git commit`, `git push`, etc.) using the Command pattern keeps things neatly organized.
 
 ### 🧪 Hands-on
 
-`command-example` is an example of a TV remote control.
-Try adding an "Undo" feature to this.
-You will need to add an `Undo()` method to the `Command` interface.
+`command-example` is a text editor example.
+Try adding a new command (e.g., `InsertTextCommand`) and implement `Do` and `Undo` to see the buffer state change.
 
 ### ❓ Quiz
 

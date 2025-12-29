@@ -120,4 +120,4 @@ Commonly used in Go.
 ## Notes
 
 - These examples are minimal for learning purposes. Adjust the designs for real‑world requirements.
-- See `book/` for background and diagrams.
+- See [book](./book/00_introduction.md) for background and diagrams.

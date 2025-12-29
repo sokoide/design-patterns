@@ -49,7 +49,8 @@ By making complex structs and functions within a package unexported (private) an
 ### 🧪 Hands-on
 
 Let's look at `facade-example`.
-Observe how `WalletFacade` hides internal subsystems like `Account`, `SecurityCode`, and `Notification`, and provides only a simple method called `addMoneyToWallet`.
+Observe how `SmartHomeFacade` hides subsystems like `Lighting`, `Audio`, and `Projector`,
+providing only a simple `WatchMovie` method.
 
 ### ❓ Quiz
 

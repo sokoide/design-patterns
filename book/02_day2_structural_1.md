@@ -48,27 +48,28 @@ In Go, this is often used to adapt structs from existing libraries or external A
 Since Go lacks "inheritance," it is implemented by embedding structs or holding them as fields (composition).
 
 ```go
-// Target Interface
-type Logger interface {
-    Log(msg string)
+// Your domain interface
+type Computer interface {
+    InsertIntoLightningPort()
 }
 
-// Adaptee (3rd party library)
-type FancyLogger struct {}
-func (f *FancyLogger) FancyLog(msg string) { fmt.Println("***" + msg + "***") }
+// Existing (incompatible) struct
+type Windows struct {}
+func (w *Windows) insertIntoUSBPort() { fmt.Println("USB plugged") }
 
 // Adapter
-type LoggerAdapter struct {
-    fancyLogger *FancyLogger
+type WindowsAdapter struct {
+    windowMachine *Windows
 }
-func (l *LoggerAdapter) Log(msg string) {
-    l.fancyLogger.FancyLog(msg) // Convert and call
+func (w *WindowsAdapter) InsertIntoLightningPort() {
+    w.windowMachine.insertIntoUSBPort() // Convert and call
 }
 ```
 
 ### 🧪 Hands-on
 
-In the `adapter-example` directory, create a new `Adaptee` (e.g., `JsonLogger`) and write an `Adapter` that fits it into the `Target` interface.
+In the `adapter-example` directory, create a new `Adaptee` (e.g., a `Linux` machine) and write an `Adapter` that fits it into the `Computer` interface.
+This allows a client expecting a Lightning port to use the Linux machine's USB port via the Adapter.
 
 ### ❓ Quiz
 
@@ -117,26 +118,39 @@ classDiagram
 ### 🐹 The Essence of Go Implementation
 
 In Go, `http.Handler` middleware is exactly this.
-A function that takes a handler and returns a new handler, like `func(next http.Handler) http.Handler`, is the Decorator pattern itself.
+By "wrapping" an existing handler with another handler, you can add features like authentication or logging dynamically.
 
 ```go
-type Pizza interface {
-    GetPrice() int
+// Middleware (Decorator) Example
+func LoggingMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        fmt.Println("Before")
+        next.ServeHTTP(w, r) // Call the original object (next) being wrapped
+        fmt.Println("After")
+    })
+}
+```
+
+The general structure looks like this (see `decorator-example` for details):
+
+```go
+type Beverage interface {
+    GetCost() float64
 }
 
-type TomatoTopping struct {
-    pizza Pizza
+type MilkDecorator struct {
+    beverage Beverage // Holds the original object
 }
 
-func (t *TomatoTopping) GetPrice() int {
-    return t.pizza.GetPrice() + 100 // Add to the original price
+func (m *MilkDecorator) GetCost() float64 {
+    return m.beverage.GetCost() + 0.15 // "Add" to the original functionality
 }
 ```
 
 ### 🧪 Hands-on
 
-In `decorator-example`, create a new topping (e.g., `CheeseTopping`) and add it to the pizza price calculation.
-Confirm that it works even if you change the order of the toppings.
+In `decorator-example`, create a new topping (e.g., `Soy`) and add it to the coffee price calculation.
+Confirm that it works even if you change the order of the toppings or add the same topping twice.
 
 ### ❓ Quiz
 
