@@ -81,7 +81,7 @@ Patterns for composing objects and classes into larger structures.
 - [**Proxy**](./proxy-example) (`proxy-example`): Controls access or delays initialization.
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many objects efficiently.
 
-The following is ignored:
+The following is omitted:
 
 - **Bridge** (`bridge-example`): Separates abstraction and implementation.
   - **Note**: Go's `interface` makes this pattern largely unnecessary.
@@ -97,7 +97,7 @@ Patterns concerning communication and responsibility between objects.
 - [**State**](./state-example) (`state-example`): Changes behavior by switching internal state.
 - [**Memento**](./memento-example) (`memento-example`): Saves and restores state snapshots.
 
-The following are ignored:
+The following are omitted:
 
 - **Iterator** (`iterator-example`): Traverses collections.
   - **Note**: Go has `for range`, and custom iterators usually just need a `Next() (T, bool)` method.
@@ -108,9 +108,9 @@ The following are ignored:
 - **Visitor** (`visitor-example`): Separates operations from data structures.
   - **Note**: Usually replaced by `switch n := n.(type)` (type switches).
 - **Interpreter** (`interpreter-example`): Models grammar rules.
-  - **Note**: Skipped in this collection.
+  - **Note**: Omitted in this collection.
 
-### Other Patterns
+## Other Patterns
 
 Commonly used in Go.
 

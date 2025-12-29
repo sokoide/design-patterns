@@ -55,7 +55,7 @@ go test ./...
 
 ### 1. 生成に関するパターン (Creational Patterns)
 
-オブジェクトの生成プロセスを柔軟にするためのパターンですが、Go の特性上、標準的なコンストラクタで十分な場合が多く、本リポジトリでは以下の理由により実装を省略（または無視）しています。
+オブジェクトの生成プロセスを柔軟にするためのパターンですが、Go の特性上、標準的なコンストラクタで十分な場合が多く、本リポジトリでは以下の理由により実装を省略しています。
 
 - **Builder** (`builder-example`): 複雑な生成手順を分離し、同じ手順で異なる表現を構築します。
   - Go では **Functional Options** を使うことが多いため、省略します。
@@ -81,7 +81,7 @@ go test ./...
 - [**Proxy**](./proxy-example) (`proxy-example`): 本体の代わりに代理が処理し、アクセス制御や遅延初期化を行います。
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): 共有により多数のインスタンスを効率よく扱います。
 
-以下は無視します。
+以下は省略します。
 
 - **Bridge** (`bridge-example`): 抽象（利用側）と実装（提供側）を分離し、独立に拡張できるようにします。
   - `interface` があるため不要です。
@@ -97,16 +97,16 @@ go test ./...
 - [**State**](./state-example) (`state-example`): 状態の切り替えで振る舞いを変えます。
 - [**Memento**](./memento-example) (`memento-example`): 状態をスナップショットとして保存し、後で復元できます。
 
-以下は無視します。
+以下は省略します。
 
 - **Iterator** (`iterator-example`): 内部構造を隠したまま要素を順に走査します。
-  - `for range` があるし、自分で Iterate するときは `Next() (T, bool)` するだけなので、飛ばします。
+  - `for range` があるし、自分で Iterate するときは `Next() (T, bool)` するだけなので、省略します。
 - **Mediator** (`mediator-example`): 相互作用を仲介役に集約し、依存関係を整理します。
-  - 使うと巨大な God Object になりがちなので、飛ばします。
+  - 使うと巨大な God Object になりがちなので、省略します。
 - **Template Method** (`template-method-example`): 処理の骨格を共通化し、差分だけを実装側に委ねます。
   - Go では継承がないので、関数・小さいインターフェースとコンポジションで達成します。
 - **Visitor** (`visitor-example`): データ構造と処理を分離し、構造を変えずに新しい処理を追加します。
-  - 言語処理系を作るとき便利ですが、それ以外は `switch n := n.(type)` で代替されることが多いため、飛ばします。
+  - 言語処理系を作るとき便利ですが、それ以外は `switch n := n.(type)` で代替されることが多いため、省略します。
 - **Interpreter** (`interpreter-example`): 文法規則を構造化して表現し、解釈・実行します。
   - インタプリタやコンパイラを作る際には重要ですが、本リポジトリでは対象外とします。
 
