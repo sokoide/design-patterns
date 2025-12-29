@@ -11,3 +11,7 @@ type Department interface {
 	Execute(*Patient)
 	SetNext(Department)
 }
+
+type Logger interface {
+	Log(message string)
+}

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"command-example/domain"
-	"fmt"
 )
 
 // Editor acts as the Invoker.
@@ -10,11 +9,13 @@ import (
 type Editor struct {
 	buffer *domain.Buffer
 	stack  []domain.Command
+	logger domain.Logger
 }
 
-func NewEditor() *Editor {
+func NewEditor(logger domain.Logger) *Editor {
 	return &Editor{
 		buffer: domain.NewBuffer(),
+		logger: logger,
 	}
 }
 
@@ -27,7 +28,7 @@ func (e *Editor) Execute(c domain.Command) {
 // Undo pops the last command and reverses it.
 func (e *Editor) Undo() {
 	if len(e.stack) == 0 {
-		fmt.Println("[WARN] Nothing to undo.")
+		e.logger.Log("[WARN] Nothing to undo.")
 		return
 	}
 

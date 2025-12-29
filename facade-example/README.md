@@ -69,25 +69,35 @@ classDiagram
 ### Role of Each Layer
 
 1. **Facade (`/facade`)**:
-    * `SmartHomeFacade`: The "window" that hides the complexity of the subsystems.
-    * It exposes only simple methods (e.g., `StartMovie`) to the client.
+    - `SmartHomeFacade`: The "window" that hides the complexity of the subsystems.
+    - It exposes only simple methods (e.g., `StartMovie`) to the client.
 2. **Subsystems (`/subsystems`)**:
-    * `Lighting`, `AudioSystem`, etc.: A group of classes, each with independent functionality. They are unaware of the Facade.
+    - `Lighting`, `AudioSystem`, etc.: A group of classes, each with independent functionality. They are unaware of the Facade.
 
 ## 💡 Architecture Design Notes (Q&A)
 
-### Q1. What is the difference from the Mediator pattern?
+### Q1. Can I still access subsystems directly?
+
+**A. Yes, you can.**
+A Facade is just a "convenient shortcut." It doesn't prevent you from using the subsystems directly if you need fine-grained control.
+
+### Q2. What is the difference from the Mediator pattern?
 
 **A. The difference is whether it's "unidirectional" or "bidirectional."**
 
-* **Facade**: Its purpose is to simplify the "unidirectional" interface from the client to the subsystems. Subsystems do not interact with each other (or the Facade hides this interaction).
-* **Mediator**: Its purpose is to organize the complexity when objects interact "bidirectionally."
+- **Facade**: Its purpose is to simplify the "unidirectional" interface from the client to the subsystems. Subsystems do not interact with each other (or the Facade hides this interaction).
+- **Mediator**: Its purpose is to organize the complexity when objects interact "bidirectionally."
 
-### Q2. Should a Facade be a Singleton?
+### Q3. Can a Facade become a "God Object"?
 
-**A. In many cases, making it a Singleton is natural.**
+**A. It can if you are not careful.**
+A Facade should only "delegate" tasks and should not contain complex business logic itself. If it becomes too large, consider splitting it into multiple facades (e.g., `EntertainmentFacade`, `KitchenFacade`).
 
-Often, a single "window" for the entire system is sufficient. However, it is not mandatory.
+### Q4. Should a Facade be a Singleton?
+
+**A. While you usually only need one instance, avoid the "Singleton Pattern" (global state).**
+
+A single instance is often sufficient, but providing global access via something like `GetInstance()` makes testing difficult. We recommend creating a single instance in `main.go` and passing it where needed (Dependency Injection).
 
 ## 🚀 How to Run
 

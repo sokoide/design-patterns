@@ -1,145 +1,99 @@
 # Go Command Pattern Example (Clean Architecture)
 
-This project is an educational sample code that implements the **Command Pattern** using the **Go** language. Taking the "input" and "Undo" functions of a text editor as an example, you will learn how to separate the invocation of a process (Invoker) from its execution details (Command/Receiver).
+This project is an educational sample code that implements the **Command Pattern** using the **Go** language. It demonstrates how to encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
 
 ## What This Example Shows
 
-- Demonstrates the core intent of the pattern in a small Go example
-- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+- **Encapsulation**: Requests (Insert, Delete) are objects (`InsertCommand`, `DeleteCommand`).
+- **Undo/Redo**: Commands support `Undo`, allowing the Editor to reverse operations.
+- **Invoker/Receiver Separation**: The `Editor` (Invoker) doesn't know *how* to modify the text; it just tells the `Command` to do it. The `Command` acts on the `Buffer` (Receiver).
 
-## Quick Start
+## 📝 Scenario: Text Editor
 
-In the `command-example` directory:
+You are building a text editor.
+- You want to support **Undo**.
+- If the user types "Hello", adds " World", then deletes 3 characters, they should be able to Ctrl+Z back to "Hello World".
+- The **Command Pattern** stores these actions in a stack, making Undo trivial (just pop and call `cmd.Undo()`).
 
-```bash
-go run main.go
-```
-
-## 📝 Scenario: Text Editor with Undo Functionality
-
-Instead of simple string concatenation, all operations are encapsulated as "command objects," making it easy to manage the operation history (stack) and perform Undo operations.
-
-### Characters
-
-1. **Receiver (`domain.Buffer`)**: The buffer that actually holds the characters. It knows basic operations like "add characters" and "delete characters."
-2. **Command (`domain.Command`)**: An interface representing "what to do." It has `Do` and `Undo` methods.
-3. **Invoker (`usecase.Editor`)**: Responsible for receiving, executing, and pushing commands onto the history `stack`.
-4. **Concrete Command (`adapter.InsertCommand` etc)**: Specific operations. They hold the parameters necessary for execution (e.g., the string to insert).
-
-## 🏗 Architecture Diagram
+## 🏗 Architecture
 
 ```mermaid
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Buffer {
-        +Content: string
+    namespace Domain {
+        class Buffer {
+            +Content string
+        }
+        class Command {
+            <<interface>>
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    class Command {
-        <<interface>>
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
+    namespace Usecase {
+        class Editor {
+            -buffer: *Buffer
+            -stack: []Command
+            -logger: Logger
+            +Execute(c Command)
+            +Undo()
+            +GetContent() string
+        }
     }
 
-    %% Usecase Layer (Invoker)
-    class Editor {
-        -buffer: Buffer
-        -stack: Command[]
-        +Execute(c: Command)
-        +Undo()
-    }
-
-    %% Adapter Layer (Concrete Commands)
-    class InsertCommand {
-        -textToInsert: string
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
-    }
-
-    class DeleteCommand {
-        -count: int
-        -deletedText: string
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
+    namespace Adapter {
+        class InsertCommand {
+            -textToInsert: string
+            -logger: Logger
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
+        class DeleteCommand {
+            -count: int
+            -deletedText: string
+            -logger: Logger
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
     }
 
     %% Relationships
-    Editor o-- Buffer : Owns
-    Editor o-- Command : History Stack
-    InsertCommand ..|> Command : Implements
-    DeleteCommand ..|> Command : Implements
-
-    %% Operations
-    InsertCommand ..> Buffer : Modifies
-    DeleteCommand ..> Buffer : Modifies
+    Usecase.Editor --> Domain.Command : Executes
+    Usecase.Editor --> Domain.Buffer : Holds
+    Adapter.InsertCommand ..|> Domain.Command : Implements
+    Adapter.DeleteCommand ..|> Domain.Command : Implements
 ```
 
 ### Role of Each Layer
 
 1. **Domain (`/domain`)**:
-    * `Buffer`: The application state (text data) itself.
-    * `Command`: Interface definition.
+    * `Buffer`: The Receiver. It holds the actual data (text).
+    * `Command`: The interface for operations.
 2. **Usecase (`/usecase`)**:
-    * `Editor`: The entry point for user input (Invoker).
-    * `Execute(c Command)`: Executes a command and pushes it onto the stack.
-    * `Undo()`: Pops a command from the stack and executes its `Undo` method to revert the state.
+    * `Editor`: The Invoker. It manages the command history (stack) and executes commands.
 3. **Adapter (`/adapter`)**:
-    * `InsertCommand`: Objectification of the "insert" action.
-    * `DeleteCommand`: Objectification of the "delete" action. Note that it is **stateful**. When `Do` is executed, it stores the "deleted characters" internally, and `Undo` uses them to restore the state.
+    * `InsertCommand`, `DeleteCommand`: Concrete Commands. They hold the parameters (what text to insert, how many chars to delete) and the logic to `Do` and `Undo`.
 
-## 💡 Architecture Design Notes (Q&A)
+## 💡 Architectural Design Notes (Q&A)
 
-### Q1. Why encapsulate commands as objects?
+### Q1. Why is `Undo` logic inside the Command?
 
-**A. To treat "operations" as data.**
+**A. Because the Command knows what it did.**
+Only `InsertCommand` knows *what* text was inserted. Only `DeleteCommand` knows *what* text was deleted (it saves it in `Do` to restore it in `Undo`). This is "Stateful Command".
 
-If you simply call a function, the process "executes and finishes" and is not recorded in history.
-By making the process an object (`struct`), the following become possible:
+### Q2. Can I implement Redo?
 
-1. **History Management**: Can be stored in an array (`slice`).
-2. **Undo/Redo**: By defining "reverse operations," you can rewind time.
-3. **Deferred Execution/Queuing**: Create the command and execute it later (e.g., job queue).
-
-### Q2. What is `deletedText` in `DeleteCommand`?
-
-**A. It's a "snapshot (state)" necessary for Undo.**
-
-When executing a command to "delete 3 characters," simply "restoring 3 characters" doesn't tell you **what was written**.
-Therefore, the Command itself remembers the "deleted data" at the time of execution. This can also be referred to as a **Memento**-like role.
+**A. Yes.**
+You would need a second stack (`redoStack`). When you `Undo`, you push the command onto `redoStack`. When you `Redo`, you pop from `redoStack`, call `Do`, and push back to `historyStack`.
 
 ## 🚀 How to Run
 
 ```bash
 go run main.go
 ```
-
-### Example Output
-
-```text
-=== Command Pattern Editor Demo ===
-Initial Buffer: ""
-
-[CMD] Inserted: 'Hello'
-Current Buffer: "Hello"
-[CMD] Inserted: ' World'
-Current Buffer: "Hello World"
-[CMD] Inserted: '!!!'
-Current Buffer: "Hello World!!!"
-
---- Oops, too excited. Deleting '!!!' ---
-[CMD] Deleted last 3 chars: '!!!'
-Current Buffer: "Hello World"
-
---- Wait, I wanted them back! (Undo) ---
-[CMD] Undid Delete: Restored '!!!'
-Current Buffer: "Hello World!!!"
-
---- Undo again (Remove '!!!') ---
-[CMD] Undid Insert: Removed '!!!'
-Current Buffer: "Hello World"
-```
-
-```
-```diff

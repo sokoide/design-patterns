@@ -1,11 +1,12 @@
 # Go Decorator Pattern Example (Clean Architecture)
 
-This project is an educational sample code that implements the **Decorator Pattern** using the **Go** language. You will learn a technique to dynamically add functionality (behavior) to an existing object without modifying it.
+This project is an educational sample code that implements the **Decorator Pattern** using the **Go** language. It demonstrates how to dynamically add responsibilities (features) to objects without using inheritance.
 
 ## What This Example Shows
 
-- Demonstrates the core intent of the pattern in a small Go example
-- Keeps the `usecase` layer independent of concrete implementations (`adapter`); selection/wiring happens in `main.go`
+- **Dynamic Behavior Extension**: Wrapping a base object (Coffee) with decorators (Mocha, Whip) to add cost and description.
+- **Composition over Inheritance**: Using struct embedding or interface composition to achieve the "is-a" relationship behaviorally.
+- **Recursive Processing**: How the `GetCost` call chains through all wrappers.
 
 ## Quick Start
 
@@ -15,93 +16,107 @@ In the `decorator-example` directory:
 go run main.go
 ```
 
-## ☕ Scenario: Coffee Ordering System
+## ☕️ Scenario: Starbuzz Coffee
 
-This is a system where you can add various toppings (Mocha, Whip, Soy) to a base coffee (Espresso, HouseBlend).
-Since there are infinite combinations of toppings, it is impractical to create a class for every combination (e.g., `EspressoWithMochaAndWhip`).
-Using the Decorator pattern, toppings are implemented as "thin wrappers" that can be freely layered during ordering.
+You are building an ordering system for a coffee shop.
+- **Beverages**: Espresso, House Blend, etc.
+- **Condiments (Decorators)**: Mocha, Soy, Whip.
+- Pricing is calculated by summing the cost of the base beverage and all added condiments.
 
-## 🏗 Architecture Diagram
+Since the combinations are endless (Espresso + Mocha + Whip + Soy...), creating a class for every combination (`EspressoWithMochaAndWhip`) causes a **class explosion**.
+Instead, we define condiments as **wrappers** that "decorate" the beverage.
+
+## 🏗 Architecture
 
 ```mermaid
 classDiagram
     direction TB
 
-    %% Domain
-    class Beverage {
-        <<interface>>
-        +GetDescription() string
-        +GetCost() float64
+    namespace Domain {
+        class Beverage {
+            <<interface>>
+            +GetDescription() string
+            +GetCost() float64
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    %% Adapter (Concrete Components)
-    class Espresso {
-        +GetDescription()
-        +GetCost()
-    }
-    class HouseBlend {
-        +GetDescription()
-        +GetCost()
+    namespace Usecase {
+        class OrderService {
+            -logger: Logger
+            +ProcessOrder(b: Beverage)
+        }
     }
 
-    %% Adapter (Decorators)
-    class Mocha {
-        -beverage: Beverage
-        +GetDescription()
-        +GetCost()
-    }
-    class Whip {
-        -beverage: Beverage
-        +GetDescription()
-        +GetCost()
+    namespace Adapter {
+        class Espresso {
+            +GetDescription() string
+            +GetCost() float64
+        }
+        class HouseBlend {
+            +GetDescription() string
+            +GetCost() float64
+        }
+
+        class Mocha {
+            -beverage: Beverage
+            +GetDescription() string
+            +GetCost() float64
+        }
+        class Whip {
+            -beverage: Beverage
+            +GetDescription() string
+            +GetCost() float64
+        }
+        class Soy {
+            -beverage: Beverage
+            +GetDescription() string
+            +GetCost() float64
+        }
     }
 
     %% Relationships
-    Espresso ..|> Beverage : Implements
-    HouseBlend ..|> Beverage : Implements
-    Mocha ..|> Beverage : Implements
-    Whip ..|> Beverage : Implements
+    Usecase.OrderService --> Domain.Beverage : Uses
+    Adapter.Espresso ..|> Domain.Beverage : Implements
+    Adapter.HouseBlend ..|> Domain.Beverage : Implements
+    
+    Adapter.Mocha ..|> Domain.Beverage : Implements
+    Adapter.Whip ..|> Domain.Beverage : Implements
+    Adapter.Soy ..|> Domain.Beverage : Implements
 
-    %% Decoration
-    Mocha o-- Beverage : Wraps
-    Whip o-- Beverage : Wraps
+    Adapter.Mocha o-- Domain.Beverage : Wraps
+    Adapter.Whip o-- Domain.Beverage : Wraps
+    Adapter.Soy o-- Domain.Beverage : Wraps
 ```
 
 ### Role of Each Layer
 
 1. **Domain (`/domain`)**:
-    * `Beverage`: The common interface for components. Both base coffees and toppings (Decorators) behave as this type.
-2. **Adapter (`/adapter`)**:
-    * **Concrete Components**: Base beverages like `Espresso`, `HouseBlend`.
-    * **Decorators**: Toppings like `Mocha`, `Whip`. These internally hold a `Beverage` and, when a method is called, perform "their own processing (adding price or name)" after (or before) executing the "processing of the held Beverage."
-3. **Usecase (`/usecase`)**:
-    * `OrderService`: Receives a `Beverage` interface and handles the billing process. It doesn't care if the content is "just an espresso" or "mocha whip espresso" (transparent).
+    * `Beverage`: The common interface for both base components (Coffee) and decorators (Condiments).
+2. **Usecase (`/usecase`)**:
+    * `OrderService`: Handles the order processing. It treats any `Beverage` (wrapped or not) uniformly.
+3. **Adapter (`/adapter`)**:
+    * **Concrete Components**: `Espresso`, `HouseBlend`. They return the base cost/description.
+    * **Decorators**: `Mocha`, `Whip`, `Soy`. They hold a reference to a `Beverage` and add their own cost/description to the result of the wrapped object.
 
-## 💡 Architecture Design Notes
+## 💡 Architectural Design Notes (Q&A)
 
-### Q1. What are the benefits of using Delegation instead of Inheritance?
+### Q1. How does Go implement Decorators without inheritance?
 
-**A. It prevents combinatorial explosion and allows for runtime configuration changes.**
+**A. By using Interfaces and Composition.**
 
-If implemented with inheritance, the number of classes would increase exponentially, e.g., `HouseBlendWithMocha`, `HouseBlendWithWhip`, `HouseBlendWithMochaAndWhip`...
-The Decorator pattern achieves infinite combinations without increasing the number of classes by adopting a structure where objects are placed inside (wrapped by) other objects.
+In Java, a Decorator often extends the Component class. In Go, the Decorator struct implements the Component interface (`Beverage`) and also holds a field of that same interface type.
+`type Mocha struct { beverage Beverage }`
 
-### Q2. What are the key points for implementation in Go?
+### Q2. Why is this better than adding fields like `hasMocha bool` to Beverage?
 
-**A. Polymorphism through interfaces.**
+**A. It adheres to the Open/Closed Principle.**
 
-Go does not have class inheritance, but by having the Decorator struct also implement the `Beverage` interface and hold a `Beverage` interface as a field (Embedding or Aggregation), it can be achieved in the same way as in other languages.
-
-```go
-type Mocha struct {
-    beverage domain.Beverage // Object to be decorated
-}
-
-// Interface implementation
-func (m *Mocha) GetCost() float64 {
-    return m.beverage.GetCost() + 0.20 // Parent's price + own price
-}
-```
+If you use boolean fields, adding a new condiment (e.g., "Caramel") requires modifying the `Beverage` struct and its cost calculation logic (violating OCP).
+With Decorators, you just create a new `Caramel` struct (New Code) without touching existing code.
 
 ## 🚀 How to Run
 

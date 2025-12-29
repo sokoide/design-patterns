@@ -6,6 +6,7 @@
 
 - 状態ごとの振る舞い/遷移を State オブジェクトに閉じ込める設計
 - Context が現在の State に処理を委譲して遷移する流れ
+- `usecase` 層で `Logger` を使用し、ビジネスロジック内での直接的な出力（`fmt`）を避ける方法
 
 ## すぐ試す
 
@@ -38,44 +39,54 @@ go run main.go
 
 ```mermaid
 classDiagram
-    direction TB
-
-    %% Domain Layer
-    class Action {
-        <<enumeration>>
-        A
-        B
+    namespace domain {
+        class Action {
+            <<enumeration>>
+            A
+            B
+        }
+        class Logger {
+            <<interface>>
+            +Log(message: string)
+        }
+        class DoorState {
+            <<interface>>
+            +Name() string
+            +Handle(action Action) (DoorState, string, error)
+        }
     }
 
-    class DoorState {
-        <<interface>>
-        +Name() string
-        +Handle(action Action) (DoorState, string, error)
+    namespace usecase {
+        class DoorContext {
+            -currentState: DoorState
+            -logger: Logger
+            +ExecuteAction(action Action)
+            +GetStateName() string
+        }
     }
 
-    %% Usecase Layer (Context)
-    class DoorContext {
-        -currentState: DoorState
-        +ExecuteAction(action Action)
-        +GetStateName() string
-    }
-
-    %% Adapter Layer (Concrete States)
-    class LockedState {
-        +Handle(action Action)
-    }
-    class ClosedUnlockedState {
-        +Handle(action Action)
-    }
-    class OpenState {
-        +Handle(action Action)
+    namespace adapter {
+        class LockedState {
+            +Handle(action Action)
+        }
+        class ClosedUnlockedState {
+            +Handle(action Action)
+        }
+        class OpenState {
+            +Handle(action Action)
+        }
+        class ConsoleLogger {
+            +Log(message: string)
+        }
     }
 
     %% Relationships
     DoorContext o-- DoorState : Holds Current
+    DoorContext o-- Logger : Uses
     LockedState ..|> DoorState : Implements
     ClosedUnlockedState ..|> DoorState : Implements
     OpenState ..|> DoorState : Implements
+    ConsoleLogger ..|> Logger : Implements
 
     %% Transitions (Conceptual)
     LockedState ..> ClosedUnlockedState : Action A
@@ -89,12 +100,15 @@ classDiagram
 1.  **Domain (`/domain`)**:
     *   `DoorState` インターフェース：全ての状態が持つべき振る舞い（`Handle`）を定義。
     *   `Action` 定数：システム内で使われる共通言語。
+    *   `Logger` インターフェース：ログ出力の抽象定義。
 2.  **Usecase (`/usecase`)**:
-    *   **Context**: 現在の状態(`currentState`)を保持する箱です。
+    *   **Context (`DoorContext`)**: 現在の状態(`currentState`)を保持する箱です。
     *   ユーザーからの入力を受け取ると、自分で判断せず、今の状態(`currentState.Handle`)に「これやって」と丸投げ（委譲）します。
+    *   結果の出力には `domain.Logger` を使用し、`fmt` や外部システムへの直接的な依存を避けます。
 3.  **Adapter (`/adapter`)**:
     *   **Concrete States**: `LockedState` や `OpenState` など、各状態ごとの具体的なロジック置き場です。
     *   「Lockedの時にボタンAを押されたら、次はClosedUnlockedになる」といった**遷移ルール**はここに記述されます。
+    *   **ConsoleLogger**: ロガーの具象実装です。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
@@ -121,18 +135,4 @@ State Patternでは、「Locked状態の時の振る舞い」は `LockedState` �
 
 ```bash
 go run main.go
-```
-
-### 実行結果の例
-
-```text
-=== Door State Machine System Started ===
-Initial State: LOCKED 🔒
-
-[Input B] (Current: LOCKED 🔒          ) -> Door is already locked. -> New State: LOCKED 🔒
-[Input A] (Current: LOCKED 🔒          ) -> Unlocking door... -> New State: CLOSED (UNLOCKED) 🚪
-[Input A] (Current: CLOSED (UNLOCKED) 🚪) -> Opening door... -> New State: OPEN 💨
-[Input A] (Current: OPEN 💨            ) -> Door is already open. -> New State: OPEN 💨
-[Input B] (Current: OPEN 💨            ) -> Closing door... -> New State: CLOSED (UNLOCKED) 🚪
-[Input B] (Current: CLOSED (UNLOCKED) 🚪) -> Locking door... -> New State: LOCKED 🔒
 ```

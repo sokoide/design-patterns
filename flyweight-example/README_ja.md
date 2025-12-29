@@ -1,11 +1,13 @@
 # Go Flyweight Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Flyweight Pattern（フライウェイトパターン）**を実装した教育用のサンプルコードです。多数のオブジェクト間で共通の状態を共有することで、メモリ使用量を削減する方法を学びます。
+このプロジェクトは、**Go**言語を用いて**Flyweight Pattern（フライウェイトパターン）**を実装した教育用のサンプルコードです。類似したオブジェクト間で可能な限りデータを共有することで、メモリ使用量を最小限に抑える方法を学びます。
 
 ## この例で学べること
 
-- 共有する状態（`TreeType`）と個体ごとの状態（座標）を分離する考え方
-- Factory で Flyweight を共有/キャッシュしてメモリを節約する流れ
+- **共有状態 (Intrinsic)**: 変更されず、共有可能なデータ（例：木の名称、色、テクスチャ）。
+- **固有状態 (Extrinsic)**: インスタンスごとに異なり、保存が必要なデータ（例：X, Y 座標）。
+- **ファクトリによる管理**: `TreeFactory` を使用して、同一の Flyweight が再生成されずに再利用されることを保証する方法。
+- **Clean Architecture構成**: ドメインエンティティ、ファクトリロジック（`adapter`）、およびオーケストレーションロジック（`usecase`）の分離。
 
 ## すぐ試す
 
@@ -15,16 +17,11 @@
 go run main.go
 ```
 
-## 🌲 シナリオ: 森の描画 (Forest Rendering)
+## 🌲 シナリオ：大量の森の描画
 
-ゲームなどで数万本の「木」を描画する場合を考えます。
-それぞれの木が「色」「テクスチャ」「ポリゴンデータ」を個別に持っていると、メモリがいくらあっても足りません。
-木の「種類（共通データ）」と、木の「場所（個別データ）」を分け、種類データを共有（キャッシュ）することで軽量化します。
-
-### 登場人物
-1.  **Flyweight (`domain.TreeType`)**: 共有可能な状態（Intrinstic State）。色、テクスチャ、名前など、変化しないデータ。
-2.  **Context (`domain.Tree`)**: 共有できない状態（Extrinsic State）。座標（X, Y）など、個体ごとに異なるデータ。`TreeType` への参照を持ちます。
-3.  **Flyweight Factory (`adapter.TreeFactory`)**: `TreeType` を管理する工場。既に同じ種類が作られていればそれを返し、なければ新しく作ってキャッシュします。
+ゲームで 1,000,000 本の木を描画する必要があると想像してください。
+すべての `Tree` オブジェクトが自身の名前、テクスチャ、色の文字列を保持していると、すぐにメモリが不足してしまいます。
+多くの木は同じ種類（例：「オーク」）であるため、そのデータを共有の **Flyweight** オブジェクト（`TreeType`）に抽出します。各 `Tree` インスタンスは、座標と共有タイプへのポインタのみを保持します。
 
 ## 🏗 アーキテクチャ構成
 
@@ -32,74 +29,75 @@ go run main.go
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class TreeType {
-        +Name: string
-        +Color: string
-        +Texture: string
-        +Draw(x, y)
+    namespace Domain {
+        class TreeType {
+            <<Flyweight>>
+            +Name string
+            +Color string
+            +Texture string
+            +Draw(drawer Drawer, x int, y int)
+        }
+        class Tree {
+            <<Context>>
+            +X int
+            +Y int
+            -Type *TreeType
+            +Draw(drawer Drawer)
+        }
+        class Drawer {
+            <<interface>>
+            +Draw(msg string)
+        }
     }
 
-    class Tree {
-        +X: int
-        +Y: int
-        +Type: TreeType
-        +Draw()
+    namespace Usecase {
+        class Forest {
+            -trees []*Tree
+            -factory *TreeFactory
+            -drawer Drawer
+            +PlantTree(x, y, name, color, texture)
+            +Draw()
+        }
     }
 
-    %% Adapter Layer
-    class TreeFactory {
-        -treeTypes: Map
-        +GetTreeType(...) TreeType
+    namespace Adapter {
+        class TreeFactory {
+            -treeTypes map[string]*TreeType
+            +GetTreeType(name, color, texture) *TreeType
+        }
+        class ConsoleDrawer {
+            +Draw(msg string)
+        }
     }
 
     %% Relationships
-    Tree o-- TreeType : References
-    TreeFactory o-- TreeType : Caches
-    TreeFactory ..> TreeType : Creates
+    Forest --> TreeFactory : Uses
+    Forest --> Tree : Owns
+    Tree o-- TreeType : Shares
+    TreeType ..> Drawer : Uses
+    ConsoleDrawer ..|> Drawer : Implements
 ```
 
 ### 各レイヤーの役割
 
-1.  **Domain (`/domain`)**:
-    *   `TreeType`: メモリを食う「重い」データ。これは書き換え不可（Immutable）として扱います。
-    *   `Tree`: 軽量なデータ。座標と、`TreeType` へのポインタだけを持ちます。
-2.  **Adapter (`/adapter`)**:
-    *   `TreeFactory`: シングルトン的な役割を果たし、`TreeType` のプールを管理します。
-    *   `GetTreeType`: 同じパラメータ（名前、色、テクスチャ）のリクエストが来たら、既存のインスタンスを返します。これがメモリ節約の肝です。
+1. **Domain (`/domain`)**: `TreeType` (Flyweight) と `Tree` (Context) のロジックを含みます。直接的な副作用を避けるために `Drawer` インターフェースを定義しています。
+2. **Usecase (`/usecase`)**: 木のコレクションを管理し、ファクトリを使用して生成を最適化する `Forest` ロジックを含みます。
+3. **Adapter (`/adapter`)**: Flyweight のキャッシュと再利用を担当する `TreeFactory` と、出力用の `ConsoleDrawer` を含みます。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. どのくらいメモリが節約できますか？
+### Q1. Flyweight はどのような時に使うべきですか？
 
-**A. オブジェクトの数と「共有できる部分」の大きさに依存します。**
+**A. アプリケーションが大量のオブジェクトを使用しており、ストレージコストが高い時です。**
+オブジェクトの状態の大部分を外部化（オブジェクト外に移動）できる場合、Flyweight を使用することで、多数のオブジェクトを少数の共有オブジェクトに置き換えることができます。
 
-例えば、1本の木が1KBのデータを持つとして、1万本あれば10MBです。
-しかし、種類が「オーク」と「松」の2種類しかなければ、Flyweightパターンを使うことで `TreeType` 2つ分（2KB） + 座標データ1万個分（数KB）で済み、劇的に削減できます。
+### Q2. これはキャッシュと同じですか？
 
-### Q2. Goの `sync.Map` は必要ですか？
-
-**A. 並行処理をするなら必要です。**
-
-今回のサンプルはシングルスレッド動作ですが、実際のゲームサーバーやWebアプリで複数のゴルーチンから同時に `GetTreeType` が呼ばれる可能性がある場合は、`sync.Mutex` や `sync.Map` を使ってFactoryをスレッドセーフにする必要があります。
+**A. 関連していますが、意図が異なります。**
+キャッシュは通常、パフォーマンス（時間の節約）を目的としています。Flyweight は特に、共存するオブジェクト間で構造的にデータを共有することによる **メモリ効率**（スペースの節約）を目的としています。
 
 ## 🚀 実行方法
 
 ```bash
 go run main.go
 ```
-
-### 実行結果の例
-
-```text
-=== Flyweight Pattern ===
-Drawing Oak tree (Green, Rough) at (1, 1)
-Drawing Oak tree (Green, Rough) at (2, 3)
-Drawing Pine tree (DarkGreen, Smooth) at (5, 1)
-Drawing Oak tree (Green, Rough) at (6, 6)
-
-Total Tree Objects: 4
-Total TreeTypes (Flyweights): 2
-```
-
-木は4本ありますが、TreeTypeの実体は2つしか生成されていないことがわかります。

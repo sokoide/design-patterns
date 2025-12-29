@@ -28,46 +28,54 @@ go run main.go
 1.  **Handler (`domain.Department`)**: 共通インターフェース。`Execute(*Patient)` と `SetNext(Department)` を持ちます。
 2.  **Concrete Handler (`adapter.Reception`, `adapter.Doctor`, `adapter.Cashier`)**: 具体的な処理。自分の仕事が終わったら（あるいは自分が処理できなければ）、`next` にリクエストを回します。
 3.  **Request (`domain.Patient`)**: 処理される対象データ。
+4.  **UseCase (`usecase.PatientVisitService`)**: 病院を訪れる患者のビジネスロジックをカプセル化し、チェーンの先頭ハンドラへの参照を保持します。
 
 ## 🏗 アーキテクチャ構成
 
 ```mermaid
 classDiagram
-    direction LR
-
-    %% Domain Layer
-    class Patient {
-        +Name: string
-        +RegistrationDone: bool
-        +DoctorCheckUpDone: bool
-        +PaymentDone: bool
+    namespace domain {
+        class Patient {
+            +Name: string
+            +RegistrationDone: bool
+            +DoctorCheckUpDone: bool
+            +PaymentDone: bool
+        }
+        class Department {
+            <<interface>>
+            +Execute(p: Patient)
+            +SetNext(d: Department)
+        }
     }
 
-    class Department {
-        <<interface>>
-        +Execute(p: Patient)
-        +SetNext(d: Department)
+    namespace usecase {
+        class PatientVisitService {
+            -chainHead: Department
+            +VisitHospital(p: Patient)
+        }
     }
 
-    %% Adapter Layer
-    class Reception {
-        -next: Department
-        +Execute(p: Patient)
-    }
-    class Doctor {
-        -next: Department
-        +Execute(p: Patient)
-    }
-    class Cashier {
-        -next: Department
-        +Execute(p: Patient)
+    namespace adapter {
+        class Reception {
+            -next: Department
+            +Execute(p: Patient)
+        }
+        class Doctor {
+            -next: Department
+            +Execute(p: Patient)
+        }
+        class Cashier {
+            -next: Department
+            +Execute(p: Patient)
+        }
     }
 
     %% Relationships
     Reception ..|> Department : Implements
     Doctor ..|> Department : Implements
     Cashier ..|> Department : Implements
-    
+
+    PatientVisitService --> Department : Uses (Head)
     Reception o-- Doctor : Next
     Doctor o-- Cashier : Next
 ```
@@ -77,7 +85,9 @@ classDiagram
 1.  **Domain (`/domain`)**:
     *   `Department`: 処理を行う部門のインターフェース。
     *   `Patient`: バケツリレーされるデータ。各部門でフラグ(`RegistrationDone`など)が更新されていきます。
-2.  **Adapter (`/adapter`)**:
+2.  **UseCase (`/usecase`)**:
+    *   `PatientVisitService`: チェーン・オブ・レスポンシビリティの仕組みを起動し、患者の訪問フローを調整します。チェーンの具体的な実装は知らず、`Department` インターフェースのみを知っています。
+3.  **Adapter (`/adapter`)**:
     *   各Handlerの実装です。`Execute` メソッド内で自分の処理を行い、`r.next.Execute(p)` のように次のHandlerを呼び出します。
     *   これにより、呼び出し元（Client）はチェーンの最初のオブジェクト（Reception）を呼ぶだけで、全工程が完了します。
 

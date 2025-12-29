@@ -7,14 +7,15 @@ import (
 )
 
 func main() {
+	logger := adapter.NewConsoleLogger()
+
 	// 1. Create the Subject (Observable)
-	// This represents a Bitcoin market tracker
-	market := usecase.NewMarketSystem("Bitcoin", 30000.00)
+	market := usecase.NewMarketSystem("Bitcoin", 30000.00, logger)
 
 	// 2. Create Observers (Listeners)
-	emailClient := adapter.NewEmailNotifier("investor@example.com")
-	slackBot := adapter.NewSlackNotifier("crypto-alerts")
-	logger := adapter.NewLogNotifier()
+	emailClient := adapter.NewEmailNotifier("investor@example.com", logger)
+	slackBot := adapter.NewSlackNotifier("crypto-alerts", logger)
+	logObserver := adapter.NewLogNotifier(logger)
 
 	fmt.Println("=== Observer Pattern Market Demo ===")
 
@@ -22,7 +23,7 @@ func main() {
 	fmt.Println("Setting up listeners...")
 	market.Register(emailClient)
 	market.Register(slackBot)
-	market.Register(logger)
+	market.Register(logObserver)
 
 	// 4. Trigger Event (Price Change)
 	// All 3 observers should react

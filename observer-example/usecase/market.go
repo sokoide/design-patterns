@@ -11,12 +11,14 @@ type MarketSystem struct {
 	observers []domain.Observer
 	itemName  string
 	price     float64
+	logger    domain.Logger
 }
 
-func NewMarketSystem(item string, price float64) *MarketSystem {
+func NewMarketSystem(item string, price float64, logger domain.Logger) *MarketSystem {
 	return &MarketSystem{
 		itemName: item,
 		price:    price,
+		logger:   logger,
 	}
 }
 
@@ -39,7 +41,7 @@ func (m *MarketSystem) Unregister(o domain.Observer) {
 // NotifyAll sends the event to all registered observers.
 func (m *MarketSystem) NotifyAll() {
 	msg := fmt.Sprintf("Price of '%s' changed to $%.2f", m.itemName, m.price)
-	fmt.Printf("\n--- 📢 Notifying %d observers ---\n", len(m.observers))
+	m.logger.Log(fmt.Sprintf("\n--- 📢 Notifying %d observers ---", len(m.observers)))
 
 	for _, observer := range m.observers {
 		observer.OnUpdate(msg)
@@ -49,7 +51,7 @@ func (m *MarketSystem) NotifyAll() {
 // --- Business Logic ---
 
 func (m *MarketSystem) UpdatePrice(newPrice float64) {
-	fmt.Printf("\n[Market] Updating price from $%.2f to $%.2f\n", m.price, newPrice)
+	m.logger.Log(fmt.Sprintf("\n[Market] Updating price from $%.2f to $%.2f", m.price, newPrice))
 	m.price = newPrice
 
 	// When state changes, notify observers!

@@ -2,27 +2,25 @@ package main
 
 import (
 	"flyweight-example/adapter"
-	"flyweight-example/domain"
+	"flyweight-example/usecase"
 	"fmt"
 )
 
 func main() {
 	fmt.Println("=== Flyweight Pattern ===")
 
-	factory := adapter.GetFactory()
+	factory := adapter.NewTreeFactory()
+	drawer := adapter.NewConsoleDrawer()
+	forest := usecase.NewForest(factory, drawer)
 
 	// Creating a forest
-	trees := []*domain.Tree{
-		{X: 1, Y: 1, Type: factory.GetTreeType("Oak", "Green", "Rough")},
-		{X: 2, Y: 3, Type: factory.GetTreeType("Oak", "Green", "Rough")}, // Reused
-		{X: 5, Y: 1, Type: factory.GetTreeType("Pine", "DarkGreen", "Smooth")},
-		{X: 6, Y: 6, Type: factory.GetTreeType("Oak", "Green", "Rough")}, // Reused
-	}
+	forest.PlantTree(1, 1, "Oak", "Green", "Rough")
+	forest.PlantTree(2, 3, "Oak", "Green", "Rough") // Reused
+	forest.PlantTree(5, 1, "Pine", "DarkGreen", "Smooth")
+	forest.PlantTree(6, 6, "Oak", "Green", "Rough") // Reused
 
-	for _, t := range trees {
-		t.Draw()
-	}
+	forest.Draw()
 
-	fmt.Printf("\nTotal Tree Objects: %d\n", len(trees))
+	fmt.Printf("\nTotal Tree Objects: %d\n", forest.CountTrees())
 	fmt.Printf("Total TreeTypes (Flyweights): %d\n", factory.TotalTypes())
 }

@@ -6,3 +6,8 @@ type Beverage interface {
 	GetDescription() string
 	GetCost() float64
 }
+
+// Logger defines the interface for logging.
+type Logger interface {
+	Log(message string)
+}

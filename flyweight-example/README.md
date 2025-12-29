@@ -1,11 +1,13 @@
 # Go Flyweight Pattern Example (Clean Architecture)
 
-This project is an educational sample code that implements the **Flyweight Pattern** using the **Go** language. You will learn how to reduce memory usage by sharing common state among a large number of objects.
+This project is an educational sample code that implements the **Flyweight Pattern** using the **Go** language. It demonstrates how to minimize memory usage by sharing as much data as possible with similar objects.
 
 ## What This Example Shows
 
-- Splitting intrinsic state (`TreeType`) from extrinsic state (`Tree` position)
-- Sharing/caching flyweights in a factory to reduce memory
+- **Shared State (Intrinsic)**: Data that is constant and can be shared (e.g., Tree name, color, texture).
+- **Unique State (Extrinsic)**: Data that varies and must be stored per instance (e.g., X, Y coordinates).
+- **Factory Management**: Using a `TreeFactory` to ensure that identical Flyweights are reused rather than re-created.
+- **Clean Architecture**: Separation of domain entities, factory logic (`adapter`), and orchestrating logic (`usecase`).
 
 ## Quick Start
 
@@ -15,92 +17,87 @@ In the `flyweight-example` directory:
 go run main.go
 ```
 
-## 🌲 Scenario: Forest Rendering
+## 🌲 Scenario: Massive Forest Rendering
 
-Consider the case of rendering tens of thousands of "trees" in a game.
-If each tree individually holds data for "color," "texture," and "polygon data," you will run out of memory no matter how much you have.
-By separating the "type of tree (common data)" from the "location of the tree (individual data)" and sharing (caching) the type data, we can make it lightweight.
+Imagine a game where you need to render 1,000,000 trees.
+If every `Tree` object stores its own name, texture, and color strings, you will quickly run out of memory.
+Since many trees are of the same type (e.g., "Oak"), we extract that data into a shared **Flyweight** object (`TreeType`). Each individual `Tree` instance only stores its coordinates and a pointer to the shared type.
 
-### Characters
-
-1. **Flyweight (`domain.TreeType`)**: The shareable state (Intrinsic State). Data that does not change, such as color, texture, and name.
-2. **Context (`domain.Tree`)**: The non-shareable state (Extrinsic State). Data that differs for each individual, such as coordinates (X, Y). It holds a reference to `TreeType`.
-3. **Flyweight Factory (`adapter.TreeFactory`)**: A factory that manages `TreeType`. If the same type has already been created, it returns it; otherwise, it creates a new one and caches it.
-
-## 🏗 Architecture Diagram
+## 🏗 Architecture
 
 ```mermaid
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class TreeType {
-        +Name: string
-        +Color: string
-        +Texture: string
-        +Draw(x, y)
+    namespace Domain {
+        class TreeType {
+            <<Flyweight>>
+            +Name string
+            +Color string
+            +Texture string
+            +Draw(drawer Drawer, x int, y int)
+        }
+        class Tree {
+            <<Context>>
+            +X int
+            +Y int
+            -Type *TreeType
+            +Draw(drawer Drawer)
+        }
+        class Drawer {
+            <<interface>>
+            +Draw(msg string)
+        }
     }
 
-    class Tree {
-        +X: int
-        +Y: int
-        +Type: TreeType
-        +Draw()
+    namespace Usecase {
+        class Forest {
+            -trees []*Tree
+            -factory *TreeFactory
+            -drawer Drawer
+            +PlantTree(x, y, name, color, texture)
+            +Draw()
+        }
     }
 
-    %% Adapter Layer
-    class TreeFactory {
-        -treeTypes: Map
-        +GetTreeType(...) TreeType
+    namespace Adapter {
+        class TreeFactory {
+            -treeTypes map[string]*TreeType
+            +GetTreeType(name, color, texture) *TreeType
+        }
+        class ConsoleDrawer {
+            +Draw(msg string)
+        }
     }
 
     %% Relationships
-    Tree o-- TreeType : References
-    TreeFactory o-- TreeType : Caches
-    TreeFactory ..> TreeType : Creates
+    Forest --> TreeFactory : Uses
+    Forest --> Tree : Owns
+    Tree o-- TreeType : Shares
+    TreeType ..> Drawer : Uses
+    ConsoleDrawer ..|> Drawer : Implements
 ```
 
 ### Role of Each Layer
 
-1. **Domain (`/domain`)**:
-    * `TreeType`: The "heavy" data that consumes memory. This is treated as immutable.
-    * `Tree`: Lightweight data. It only holds coordinates and a pointer to `TreeType`.
-2. **Adapter (`/adapter`)**:
-    * `TreeFactory`: Plays a singleton-like role and manages a pool of `TreeType`s.
-    * `GetTreeType`: If a request with the same parameters (name, color, texture) comes in, it returns the existing instance. This is the key to saving memory.
+1. **Domain (`/domain`)**: Contains the `TreeType` (Flyweight) and `Tree` (Context) logic. It defines the `Drawer` interface to avoid direct side effects.
+2. **Usecase (`/usecase`)**: Contains the `Forest` logic, which acts as the manager for the collection of trees and uses the factory to optimize creation.
+3. **Adapter (`/adapter`)**: Contains the `TreeFactory`, which handles the caching and reuse of Flyweights, and the `ConsoleDrawer` for output.
 
-## 💡 Architecture Design Notes (Q&A)
+## 💡 Architectural Design Notes (Q&A)
 
-### Q1. How much memory can be saved?
+### Q1. When should I use Flyweight?
 
-**A. It depends on the number of objects and the size of the "shareable part."**
+**A. When your application uses a large number of objects and the storage cost is high.**
+If most of the object state can be made extrinsic (moved outside the object), Flyweight allows you to replace many objects with a few shared ones.
 
-For example, if one tree has 1KB of data, 10,000 trees would take up 10MB.
-However, if there are only two types, "Oak" and "Pine," using the Flyweight pattern, the memory usage would be for 2 `TreeType`s (2KB) + 10,000 coordinate data sets (a few KB), resulting in a dramatic reduction.
+### Q2. Is this the same as a Cache?
 
-### Q2. Is Go's `sync.Map` necessary?
-
-**A. It is necessary for concurrent processing.**
-
-Although this sample runs on a single thread, in a real game server or web application where `GetTreeType` might be called from multiple goroutines simultaneously, it is necessary to make the Factory thread-safe using `sync.Mutex` or `sync.Map`.
+**A. They are related, but different in intent.**
+A cache is usually about performance (saving time). Flyweight is specifically about **memory efficiency** (saving space) by structurally sharing data between objects that coexist.
 
 ## 🚀 How to Run
 
 ```bash
 go run main.go
 ```
-
-### Example Output
-
-```text
-=== Flyweight Pattern ===
-Drawing Oak tree (Green, Rough) at (1, 1)
-Drawing Oak tree (Green, Rough) at (2, 3)
-Drawing Pine tree (DarkGreen, Smooth) at (5, 1)
-Drawing Oak tree (Green, Rough) at (6, 6)
-
-Total Tree Objects: 4
-Total TreeTypes (Flyweights): 2
-```
-
-You can see that although there are 4 trees, only 2 instances of TreeType have been created.

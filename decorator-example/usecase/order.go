@@ -6,15 +6,17 @@ import (
 )
 
 // OrderService acts as a client that works with the component interface.
-type OrderService struct{}
+type OrderService struct {
+	logger domain.Logger
+}
 
-func NewOrderService() *OrderService {
-	return &OrderService{}
+func NewOrderService(logger domain.Logger) *OrderService {
+	return &OrderService{logger: logger}
 }
 
 func (o *OrderService) ProcessOrder(b domain.Beverage) {
-	fmt.Println("--- Processing Order ---")
-	fmt.Printf("Item: %s\n", b.GetDescription())
-	fmt.Printf("Total Cost: $%.2f\n", b.GetCost())
-	fmt.Println("------------------------")
+	o.logger.Log("--- Processing Order ---")
+	o.logger.Log(fmt.Sprintf("Item: %s", b.GetDescription()))
+	o.logger.Log(fmt.Sprintf("Total Cost: $%.2f", b.GetCost()))
+	o.logger.Log("------------------------")
 }

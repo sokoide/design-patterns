@@ -7,3 +7,14 @@ type Memento struct {
 func (m *Memento) GetSavedState() string {
 	return m.State
 }
+
+type Editor interface {
+	Type(words string)
+	GetContent() string
+	CreateMemento() *Memento
+	Restore(m *Memento)
+}
+
+type Logger interface {
+	Log(message string)
+}

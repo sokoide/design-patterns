@@ -6,6 +6,7 @@ This project is an educational sample code that implements the **State Pattern**
 
 - Encapsulating state‑specific behavior in separate state objects
 - Delegating transitions from the context to the current state
+- Using `usecase` to coordinate the flow, utilizing a `Logger` for output (avoiding direct `fmt` calls in business logic)
 
 ## Quick Start
 
@@ -40,44 +41,54 @@ A door has three states, and its state transitions through two actions (A and B)
 
 ```mermaid
 classDiagram
-    direction TB
-
-    %% Domain Layer
-    class Action {
-        <<enumeration>>
-        A
-        B
+    namespace domain {
+        class Action {
+            <<enumeration>>
+            A
+            B
+        }
+        class Logger {
+            <<interface>>
+            +Log(message: string)
+        }
+        class DoorState {
+            <<interface>>
+            +Name() string
+            +Handle(action Action) (DoorState, string, error)
+        }
     }
 
-    class DoorState {
-        <<interface>>
-        +Name() string
-        +Handle(action Action) (DoorState, string, error)
+    namespace usecase {
+        class DoorContext {
+            -currentState: DoorState
+            -logger: Logger
+            +ExecuteAction(action Action)
+            +GetStateName() string
+        }
     }
 
-    %% Usecase Layer (Context)
-    class DoorContext {
-        -currentState: DoorState
-        +ExecuteAction(action Action)
-        +GetStateName() string
-    }
-
-    %% Adapter Layer (Concrete States)
-    class LockedState {
-        +Handle(action Action)
-    }
-    class ClosedUnlockedState {
-        +Handle(action Action)
-    }
-    class OpenState {
-        +Handle(action Action)
+    namespace adapter {
+        class LockedState {
+            +Handle(action Action)
+        }
+        class ClosedUnlockedState {
+            +Handle(action Action)
+        }
+        class OpenState {
+            +Handle(action Action)
+        }
+        class ConsoleLogger {
+            +Log(message: string)
+        }
     }
 
     %% Relationships
     DoorContext o-- DoorState : Holds Current
+    DoorContext o-- Logger : Uses
     LockedState ..|> DoorState : Implements
     ClosedUnlockedState ..|> DoorState : Implements
     OpenState ..|> DoorState : Implements
+    ConsoleLogger ..|> Logger : Implements
 
     %% Transitions (Conceptual)
     LockedState ..> ClosedUnlockedState : Action A
@@ -91,12 +102,15 @@ classDiagram
 1. **Domain (`/domain`)**:
     * `DoorState` interface: Defines the behavior that all states must have (`Handle`).
     * `Action` constant: The common language used within the system.
+    * `Logger` interface: Abstract logging capability.
 2. **Usecase (`/usecase`)**:
-    * **Context**: A container that holds the current state (`currentState`).
+    * **Context (`DoorContext`)**: A container that holds the current state (`currentState`).
     * When it receives user input, it doesn't make decisions itself but delegates the task to the current state (`currentState.Handle`).
+    * It uses `domain.Logger` to output results, ensuring no direct dependency on `fmt` or external systems.
 3. **Adapter (`/adapter`)**:
     * **Concrete States**: A place for the specific logic of each state, such as `LockedState` and `OpenState`.
     * The **transition rules**, like "when in the Locked state and button A is pressed, the next state is ClosedUnlocked," are described here.
+    * **ConsoleLogger**: Concrete implementation of the logger.
 
 ## 💡 Architectural Design Notes (Q&A)
 
@@ -123,18 +137,4 @@ This clean separation of responsibilities makes it a very effective design for c
 
 ```bash
 go run main.go
-```
-
-### Example Output
-
-```text
-=== Door State Machine System Started ===
-Initial State: LOCKED 🔒
-
-[Input B] (Current: LOCKED 🔒          ) -> Door is already locked. -> New State: LOCKED 🔒
-[Input A] (Current: LOCKED 🔒          ) -> Unlocking door... -> New State: CLOSED (UNLOCKED) 🚪
-[Input A] (Current: CLOSED (UNLOCKED) 🚪) -> Opening door... -> New State: OPEN 💨
-[Input A] (Current: OPEN 💨            ) -> Door is already open. -> New State: OPEN 💨
-[Input B] (Current: OPEN 💨            ) -> Closing door... -> New State: CLOSED (UNLOCKED) 🚪
-[Input B] (Current: CLOSED (UNLOCKED) 🚪) -> Locking door... -> New State: LOCKED 🔒
 ```

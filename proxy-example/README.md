@@ -1,31 +1,18 @@
 # Go Proxy Pattern Example (Clean Architecture)
 
-This project is an educational sample code that implements the **Proxy Pattern** using the **Go** language. You will learn how to place a "proxy" to control access to an object.
+This project is an educational sample code that implements the **Proxy Pattern** using the **Go** language. It demonstrates how to control access to an object by placing a proxy (substitute) in front of it.
 
 ## What This Example Shows
 
-- Using a proxy (`Nginx`) to control access to a real server
-- Adding rate limiting without changing the application server
+- **Access Control**: The Proxy (`Nginx`) checks rate limits before forwarding the request to the real subject (`AppServer`).
+- **Transparent Usage**: The client (`main.go` / `Client`) treats the Proxy and the Real Subject exactly the same via the `Server` interface.
+- **Dependency Injection**: The Real Subject is injected into the Proxy.
 
-## Quick Start
+## 🚦 Scenario: Nginx as a Reverse Proxy
 
-In the `proxy-example` directory:
-
-```bash
-go run main.go
-```
-
-## 🛡 Scenario: Rate Limiting with Nginx
-
-When sending requests to a web server (Application), instead of accessing it directly, we go through Nginx (a web server and reverse proxy).
-If there are too many requests to a specific URL, Nginx returns a "403 Forbidden" response without passing the request to the actual application server.
-This protects the application server from overload.
-
-### Characters
-
-1. **Subject (`domain.Server`)**: The common interface, which has a `HandleRequest` method.
-2. **Real Subject (`adapter.AppServer`)**: The server that performs the actual processing. It does not contain logic for access control (Single Responsibility Principle).
-3. **Proxy (`adapter.Nginx`)**: The agent. It holds a reference to the `RealSubject`. When a request comes in, it performs a check (rate limiting) and, if there are no issues, delegates the processing to the `RealSubject`.
+You have an Application Server (`AppServer`) that handles API requests.
+However, to prevent overload, you want to limit the number of requests per URL.
+Instead of adding rate limiting logic inside the AppServer, you place an **Nginx** proxy in front of it to intercept and check requests first.
 
 ## 🏗 Architecture
 
@@ -33,56 +20,72 @@ This protects the application server from overload.
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Server {
-        <<interface>>
-        +HandleRequest(url, method) (int, string)
+    namespace Domain {
+        class Server {
+            <<interface>>
+            +HandleRequest(url, method) (int, string)
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    %% Adapter Layer
-    class AppServer {
-        +HandleRequest(...)
+    namespace Usecase {
+        class Client {
+            -logger: Logger
+            +SendRequests(server: Server, url: string, count: int)
+        }
     }
 
-    class Nginx {
-        -application: AppServer
-        -rateLimiter: Map
-        +HandleRequest(...)
-        -checkRateLimiting(url) bool
+    namespace Adapter {
+        class AppServer {
+            -logger: Logger
+            +HandleRequest(url, method) (int, string)
+        }
+
+        class Nginx {
+            -application: Server
+            -maxAllowedRequest: int
+            -rateLimiter: map
+            -logger: Logger
+            +HandleRequest(url, method) (int, string)
+            -checkRateLimiting(url) bool
+        }
     }
 
     %% Relationships
-    AppServer ..|> Server : Implements
-    Nginx ..|> Server : Implements
-    Nginx o-- AppServer : Wraps
+    Usecase.Client --> Domain.Server : Uses
+    Adapter.AppServer ..|> Domain.Server : Implements (Real Subject)
+    Adapter.Nginx ..|> Domain.Server : Implements (Proxy)
+    Adapter.Nginx o-- Domain.Server : Wraps
 ```
 
 ### Role of Each Layer
 
 1. **Domain (`/domain`)**:
-    * `Server`: The interface for behaving as a server.
-2. **Adapter (`/adapter`)**:
-    * `AppServer`: The core logic (API processing, etc.). This is where business logic should be concentrated.
-    * `Nginx`: Handles "pre-processing and post-processing" tasks like security and caching.
+    * `Server`: The common interface for both the Proxy and the Real Subject.
+2. **Usecase (`/usecase`)**:
+    * `Client`: Sends requests to a `Server`. It doesn't know if it's talking to Nginx or the App directly.
+3. **Adapter (`/adapter`)**:
+    * `AppServer` (Real Subject): The actual logic handler.
+    * `Nginx` (Proxy): Wraps the `AppServer`. It adds "Rate Limiting" logic. If allowed, it delegates to `AppServer`.
 
 ## 💡 Architectural Design Notes (Q&A)
 
-### Q1. What types of proxies are there?
+### Q1. What are other use cases for Proxy?
 
-**A. The name changes depending on the use case.**
+**A. There are several types:**
+*   **Protection Proxy**: Controls access (Auth, Rate Limiting) - *This example*.
+*   **Virtual Proxy**: Delays creation of expensive objects until needed.
+*   **Remote Proxy**: Represents an object in a different address space (RPC).
+*   **Caching Proxy**: Returns cached results instead of executing the target.
 
-* **Protection Proxy**: Checks access permissions (this example).
-* **Virtual Proxy**: Delays the creation of heavy objects (like large images) until they are actually needed (Lazy Initialization).
-* **Remote Proxy**: Makes an object on the network appear as if it were local (e.g., gRPC stubs).
-* **Cache Proxy**: Caches results to skip the real processing.
+### Q2. How is this different from Decorator?
 
-### Q2. Isn't this the same as the Decorator pattern?
-
-**A. The structure is almost the same, but the purpose (Intent) is different.**
-
-* **Decorator**: The purpose is to "add" functionality (behavior).
-* **Proxy**: The purpose is to "control" access.
-  * A Proxy often manages the creation lifecycle of the RealSubject or denies access altogether.
+**A. The intent is different.**
+*   **Decorator**: Adds *behavior* or responsibilities (e.g., adding UI borders, adding logging). Can be wrapped multiple times.
+*   **Proxy**: Controls *access* to the object. Usually manages the lifecycle or access rights of the Real Subject.
 
 ## 🚀 How to Run
 

@@ -1,34 +1,33 @@
 package main
 
 import (
-	"facade-example/facade"
-	"facade-example/subsystems"
 	"fmt"
+
+	"facade-example/adapter"
+	"facade-example/usecase"
 )
 
 func main() {
 	fmt.Println("=== Smart Home System (Facade Pattern) ===")
 
-	// 1. Initialize Subsystems
-	// The client (main) still needs to know about these *once* to set them up,
-	// or they could be initialized inside the Facade constructor if they are hard dependencies.
-	light := subsystems.NewLighting()
-	audio := subsystems.NewAudioSystem()
-	proj := subsystems.NewProjector()
-	screen := subsystems.NewScreen()
-	coffee := subsystems.NewCoffeeMaker()
+	logger := adapter.NewConsoleLogger()
 
-	// 2. Create the Facade
-	home := facade.NewSmartHomeFacade(light, audio, proj, screen, coffee)
+	// 1. Initialize Subsystems (Adapters)
+	light := adapter.NewLighting(logger)
+	audio := adapter.NewAudioSystem(logger)
+	proj := adapter.NewProjector(logger)
+	screen := adapter.NewScreen(logger)
+	coffee := adapter.NewCoffeeMaker(logger)
+
+	// 2. Create the Facade (Usecase)
+	home := usecase.NewSmartHomeFacade(light, audio, proj, screen, coffee, logger)
 
 	// 3. Use the simplified interface
-	// The client doesn't need to call dim(), screen.down(), etc. manually.
-
 	// Scenario 1: It's Movie Night
 	home.StartMovieMode("The Matrix")
 
 	// ... watching movie ...
-	fmt.Println("\n...(2 hours later)...")
+	logger.Log("\n...(2 hours later)...")
 
 	home.EndMovieMode()
 

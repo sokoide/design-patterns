@@ -1,38 +1,34 @@
 package adapter
 
-import "proxy-example/domain"
-
-var (
-	_ domain.Server = (*AppServer)(nil)
-	_ domain.Server = (*Nginx)(nil)
+import (
+	"fmt"
+	"proxy-example/domain"
 )
 
-type AppServer struct{}
-
-func (a *AppServer) HandleRequest(url, method string) (int, string) {
-	return 200, "OK"
-}
-
 type Nginx struct {
-	Application       *AppServer
+	application       domain.Server
 	maxAllowedRequest int
 	rateLimiter       map[string]int
+	logger            domain.Logger
 }
 
-func NewNginx() *Nginx {
+func NewNginx(app domain.Server, logger domain.Logger) *Nginx {
 	return &Nginx{
-		Application:       &AppServer{},
+		application:       app,
 		maxAllowedRequest: 2,
 		rateLimiter:       make(map[string]int),
+		logger:            logger,
 	}
 }
 
 func (n *Nginx) HandleRequest(url, method string) (int, string) {
 	allowed := n.checkRateLimiting(url)
 	if !allowed {
+		n.logger.Log(fmt.Sprintf("[Nginx] Blocked request to %s (Rate Limit Exceeded)", url))
 		return 403, "Forbidden"
 	}
-	return n.Application.HandleRequest(url, method)
+	n.logger.Log(fmt.Sprintf("[Nginx] Forwarding request to %s", url))
+	return n.application.HandleRequest(url, method)
 }
 
 func (n *Nginx) checkRateLimiting(url string) bool {

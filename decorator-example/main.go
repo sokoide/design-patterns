@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	orderService := usecase.NewOrderService()
+	logger := adapter.NewConsoleLogger()
+	orderService := usecase.NewOrderService(logger)
 
 	fmt.Println("=== Starbuzz Coffee Ordering System ===")
 

@@ -1,30 +1,18 @@
 # Go Proxy Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Proxy Pattern（プロキシパターン）**を実装した教育用のサンプルコードです。あるオブジェクトへのアクセスを制御するための「代理人（Proxy）」を配置する方法を学びます。
+このプロジェクトは、**Go**言語を用いて**Proxy Pattern（プロキシパターン）**を実装した教育用のサンプルコードです。オブジェクトの前に代理（プロキシ）を置くことで、そのオブジェクトへのアクセスを制御する方法を学びます。
 
 ## この例で学べること
 
-- Proxy（`Nginx`）が実サーバの前に立ち、アクセス制御を行う設計
-- 透過的にレートリミットを追加できること
+- **アクセス制御**: プロキシ（`Nginx`）がリクエストを本物のサーバー（`AppServer`）に転送する前に、レート制限（回数制限）をチェックします。
+- **透過的な利用**: クライアントは、相手がプロキシなのか本物なのかを意識せずに、同じ `Server` インターフェースを通して利用します。
+- **依存性注入**: 本物のサーバーをプロキシに注入する構成をとっています。
 
-## すぐ試す
+## 🚦 シナリオ：リバースプロキシとしてのNginx
 
-`proxy-example` ディレクトリで実行します。
-
-```bash
-go run main.go
-```
-
-## 🛡 シナリオ: Nginxによるレート制限 (Rate Limiting)
-
-Webサーバー（Application）にリクエストを送る際、直接アクセスさせるのではなく、Nginx（Webサーバー兼リバースプロキシ）を経由させます。
-Nginxは、特定のURLへのアクセス回数が多すぎる場合、本物のアプリケーションサーバーにリクエストを渡さずに「403 Forbidden」を返します。
-これにより、アプリケーションサーバーを過負荷から守ることができます。
-
-### 登場人物
-1.  **Subject (`domain.Server`)**: 共通インターフェース。`HandleRequest` を持ちます。
-2.  **Real Subject (`adapter.AppServer`)**: 本当の処理を行うサーバー。アクセス制限のロジックなどは持ちません（単一責任の原則）。
-3.  **Proxy (`adapter.Nginx`)**: 代理人。`RealSubject` への参照を持ちます。リクエストが来たら、チェック（レート制限）を行い、問題なければ `RealSubject` に処理を委譲します。
+APIリクエストを処理するアプリケーションサーバー（`AppServer`）があります。
+しかし、過負荷を防ぐために、URLごとのリクエスト数を制限したいと考えています。
+`AppServer` の中に制限ロジックを書く代わりに、手前に **Nginx** プロキシを置いて、そこでリクエストを検査・遮断します。
 
 ## 🏗 アーキテクチャ構成
 
@@ -32,56 +20,72 @@ Nginxは、特定のURLへのアクセス回数が多すぎる場合、本物の
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Server {
-        <<interface>>
-        +HandleRequest(url, method) (int, string)
+    namespace Domain {
+        class Server {
+            <<interface>>
+            +HandleRequest(url, method) (int, string)
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    %% Adapter Layer
-    class AppServer {
-        +HandleRequest(...)
+    namespace Usecase {
+        class Client {
+            -logger: Logger
+            +SendRequests(server: Server, url: string, count: int)
+        }
     }
 
-    class Nginx {
-        -application: AppServer
-        -rateLimiter: Map
-        +HandleRequest(...)
-        -checkRateLimiting(url) bool
+    namespace Adapter {
+        class AppServer {
+            -logger: Logger
+            +HandleRequest(url, method) (int, string)
+        }
+
+        class Nginx {
+            -application: Server
+            -maxAllowedRequest: int
+            -rateLimiter: map
+            -logger: Logger
+            +HandleRequest(url, method) (int, string)
+            -checkRateLimiting(url) bool
+        }
     }
 
     %% Relationships
-    AppServer ..|> Server : Implements
-    Nginx ..|> Server : Implements
-    Nginx o-- AppServer : Wraps
+    Usecase.Client --> Domain.Server : Uses
+    Adapter.AppServer ..|> Domain.Server : Implements (Real Subject)
+    Adapter.Nginx ..|> Domain.Server : Implements (Proxy)
+    Adapter.Nginx o-- Domain.Server : Wraps
 ```
 
 ### 各レイヤーの役割
 
-1.  **Domain (`/domain`)**:
-    *   `Server`: サーバーとして振る舞うためのインターフェース。
-2.  **Adapter (`/adapter`)**:
-    *   `AppServer`: コアロジック（API処理など）。ここはビジネスロジックに集中すべき場所です。
-    *   `Nginx`: セキュリティやキャッシュなどの「前処理・後処理」を担当します。
+1. **Domain (`/domain`)**:
+    * `Server`: プロキシと本物のサーバーが共通して実装するインターフェース。
+2. **Usecase (`/usecase`)**:
+    * `Client`: リクエストを送信するクライアント。相手がNginxかアプリかを意識しません。
+3. **Adapter (`/adapter`)**:
+    * `AppServer` (Real Subject): 実際のビジネスロジックを実行するサーバー。
+    * `Nginx` (Proxy): `AppServer` をラップします。「レート制限」のロジックを追加し、許可された場合のみ `AppServer` に処理を委譲します。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. どのような種類がありますか？
+### Q1. Proxyパターンの他の用途は？
 
-**A. 用途によって呼び名が変わります。**
+**A. いくつかの種類があります。**
+*   **Protection Proxy (保護プロキシ)**: アクセス権限を管理する（認証、レート制限など） - *今回の例*。
+*   **Virtual Proxy (仮想プロキシ)**: 生成コストの高いオブジェクトの作成を、本当に必要になるまで遅延させる。
+*   **Remote Proxy (リモートプロキシ)**: 別のネットワーク上に存在するオブジェクトを、あたかも手元にあるかのように扱う。
+*   **Caching Proxy (キャッシュプロキシ)**: 処理を実行せずにキャッシュされた結果を返す。
 
-*   **保護プロキシ (Protection Proxy)**: アクセス権限をチェックする（今回の例）。
-*   **仮想プロキシ (Virtual Proxy)**: 重いオブジェクト（巨大画像など）の生成を、本当に必要になるまで遅らせる（Lazy Initialization）。
-*   **リモートプロキシ (Remote Proxy)**: ネットワーク越しにあるオブジェクトを、あたかも手元にあるかのように見せる（gRPCスタブなど）。
-*   **キャッシュプロキシ**: 結果をキャッシュして、本物の処理をスキップする。
+### Q2. Decoratorパターンとの違いは？
 
-### Q2. Decoratorパターンと同じではないですか？
-
-**A. 構造はほぼ同じですが、目的（Intent）が異なります。**
-
-*   **Decorator**: 機能（振る舞い）を「追加」することが目的。
-*   **Proxy**: アクセスを「制御」することが目的。
-    *   Proxyは、RealSubjectの生成ライフサイクルを管理したり、アクセス自体を拒否したりすることがよくあります。
+**A. 「意図」が異なります。**
+*   **Decorator**: オブジェクトに「機能」や「責任」を追加する（装飾する）。多重にラップすることが多い。
+*   **Proxy**: オブジェクトへの「アクセス」を制御する。本人の代わりとして振る舞うことに主眼がある。
 
 ## 🚀 実行方法
 

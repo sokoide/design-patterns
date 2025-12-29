@@ -1,11 +1,12 @@
 # Go Memento Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Memento Pattern（メメントパターン）**を実装した教育用のサンプルコードです。オブジェクトの実装詳細（カプセル化）を破壊せずに、その内部状態を保存し、後で復元する方法を学びます。
+このプロジェクトは、**Go**言語を用いて**Memento Pattern（メメントパターン）**を実装した教育用のサンプルコードです。オブジェクトの実装詳細（カプセル化）を破ることなく、内部状態を保存し、後で復元する方法を学びます。
 
 ## この例で学べること
 
-- 状態を Memento として保存し、内部詳細を漏らさず復元できる仕組み
-- Caretaker が履歴を保持し、Originator が復元する流れ
+- エディタの状態を不変の Memento として保存する
+- 内部構造を公開せずに過去の状態に復元する
+- Caretaker (`WriterService`) を使って履歴管理を行う
 
 ## すぐ試す
 
@@ -17,70 +18,96 @@ go run main.go
 
 ## 📝 シナリオ: テキストエディタのUndo機能
 
-テキストエディタで文章を書いているとき、いつでも「過去の状態」に戻れるようにしたいです。
-しかし、エディタの内部変数（`content`など）を外部から直接いじらせると、予期せぬバグの原因になります。
-「Memento」という専用の保管箱を作り、そこに状態を詰め込んで外部（Caretaker）に預けることで、安全にスナップショットを管理します。
+テキストエディタで文章を書いているとき、いつでも「過去の状態」に戻したい場合があります。
+しかし、エディタ内部の変数（`content`など）を外部から直接操作させると、予期せぬバグの元になります。
+そこで「Memento（記念品）」という専用の保存箱を作り、そこに状態を詰め込んで外部（Caretaker）に預けておくことで、安全にスナップショットを管理します。
 
 ### 登場人物
-1.  **Originator (`adapter.Editor`)**: 状態を持つ本人。「スナップショットを作成する(`CreateMemento`)」「スナップショットから復元する(`Restore`)」機能を提供します。
-2.  **Memento (`domain.Memento`)**: 状態の保管箱。中身（State）を持っていますが、Originator以外からは変更できないようにします（Goではフィールドの可視性で制御）。
-3.  **Caretaker (`adapter.Caretaker`)**: Mementoの管理人。Mementoを保管（配列で履歴管理）しますが、Mementoの中身を勝手にいじったりはしません。
+
+1.  **Originator (`adapter.Editor`)**: 状態を持っている本人。「スナップショットを作る(`CreateMemento`)」「スナップショットから復元する(`Restore`)」機能を提供します。
+2.  **Memento (`domain.Memento`)**: 状態の保存箱。中身を持っていますが、Originator以外には中身をいじらせないようにします（Goではフィールドの公開設定で制御）。
+3.  **Caretaker (`usecase.WriterService`)**: Mementoの管理人。Mementoを預かっておきます（配列などで履歴管理）が、Mementoの中身を勝手にいじったりはしません。
 
 ## 🏗 アーキテクチャ構成
 
 ```mermaid
 classDiagram
-    direction TB
-
-    %% Domain Layer
-    class Memento {
-        -state: string
-        +GetSavedState() string
+    namespace domain {
+        class Memento {
+            -state: string
+            +GetSavedState() string
+        }
+        class Editor {
+            <<interface>>
+            +Type(words: string)
+            +GetContent() string
+            +CreateMemento() Memento
+            +Restore(m: Memento)
+        }
+        class Logger {
+            <<interface>>
+            +Log(message: string)
+        }
     }
 
-    %% Adapter Layer
-    class Editor {
-        -content: string
-        +Type(words: string)
-        +CreateMemento() Memento
-        +Restore(m: Memento)
+    namespace usecase {
+        class WriterService {
+            -editor: Editor
+            -history: Memento[]
+            -logger: Logger
+            +Write(text: string)
+            +Save()
+            +Undo()
+        }
     }
 
-    class Caretaker {
-        -mementoArray: Memento[]
-        +AddMemento(m: Memento)
-        +GetMemento(index: int) Memento
+    namespace adapter {
+        class Editor {
+            -content: string
+            +Type(words: string)
+            +CreateMemento() Memento
+            +Restore(m: Memento)
+        }
+        class ConsoleLogger {
+            +Log(message: string)
+        }
     }
 
     %% Relationships
-    Editor ..> Memento : Creates/Uses
-    Caretaker o-- Memento : Stores
+    WriterService o-- Memento : Stores History
+    WriterService --> Editor : Uses
+    adapter.Editor ..|> domain.Editor : Implements
+    adapter.Editor ..> Memento : Creates/Restores
+    ConsoleLogger ..|> Logger : Implements
 ```
 
 ### 各レイヤーの役割
 
 1.  **Domain (`/domain`)**:
-    *   `Memento`: 状態を保持するだけの構造体。
-2.  **Adapter (`/adapter`)**:
-    *   `Editor` (Originator): 現在のテキストを持っています。`CreateMemento` で現在の状態をコピーして Memento を作ります。
-    *   `Caretaker`: 履歴リスト（StackやArray）を管理するUIやマネージャに相当します。「元に戻す」ボタンが押されたら、過去の Memento を取り出して Editor に渡します。
+    *   `Memento`: 状態だけを持つ構造体。
+    *   `Editor` (Interface): エディタの振る舞い（入力、保存、復元）を定義します。
+2.  **Usecase (`/usecase`)**:
+    *   `WriterService` (Caretaker): 文章の作成プロセスとMementoの履歴を管理します。いつ保存し、いつUndoするかを制御します。
+3.  **Adapter (`/adapter`)**:
+    *   `Editor` (Originator Implementation): 現在のテキストをメモリ上に保持します。`CreateMemento`で現在の状態をコピーして返します。
+    *   `ConsoleLogger`: コンソールへのログ出力を行います。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. コマンドパターン(Command)のUndoと何が違いますか？
+### Q1. CommandパターンのUndoとは何が違う？
 
-**A. アプローチが「操作の逆再生」か「状態の保存」かで異なります。**
+**A. 「操作を逆再生する」か「状態をまるごと保存する」かのアプローチが違います。**
 
-*   **Command**: 「直前の操作（文字追加など）」を記憶し、Undoの際は「逆の操作（文字削除）」を実行します。メモリ効率は良いですが、逆操作の定義が難しい場合があります。
-*   **Memento**: 「ある時点の状態」を丸ごとコピーして保存します。実装は簡単ですが、状態が大きい場合（巨大な画像データなど）はメモリを大量に消費します。
+*   **Command**: 「最後の操作（例：文字追加）」を覚えておき、Undo時に「逆の操作（例：文字削除）」を実行します。メモリ効率は良いですが、逆操作の定義が難しい場合があります。
+*   **Memento**: 「ある時点の状態」をまるごとコピーして保存します。実装は単純ですが、状態が巨大（例：巨大な画像データ）だとメモリを食います。
 
 ### Q2. Goでのカプセル化の限界は？
 
-**A. 完全な「フレンドクラス」のような機能はありません。**
+**A. 「フレンドクラス」のような機能はありません。**
 
 厳密なMementoパターンでは「Mementoの中身はOriginatorしか見れない」のが理想です。
-Goではパッケージプライベート（小文字）を使うことで外部パッケージからのアクセスを制限できますが、同じパッケージ内であればアクセスできてしまいます。
-このサンプルでは学習用として簡易的に実装しています。
+Goではパッケージプライベート（小文字フィールド）にすることで外部パッケージからのアクセスは防げますが、同一パッケージ内からは見えてしまいます。
+このサンプルでは学習用として簡易的な実装にしていますが、本番ではパッケージを分けるなどの工夫が必要になることもあります。
 
 ## 🚀 実行方法
 

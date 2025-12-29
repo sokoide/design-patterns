@@ -1,29 +1,19 @@
 # Go Command Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Command Pattern（コマンドパターン）**を実装した教育用のサンプルコードです。テキストエディタの「入力」と「Undo（元に戻す）」機能を例に、処理の呼び出し(Invoker)と実行内容(Command/Receiver)を分離する方法を学びます。
+このプロジェクトは、**Go**言語を用いて**Command Pattern（コマンドパターン）**を実装した教育用のサンプルコードです。要求をオブジェクトとしてカプセル化することで、パラメータ化、履歴管理、Undo/Redo（取り消し）などを可能にする方法を学びます。
 
 ## この例で学べること
 
-- このパターンの意図を Go の小さな例で確認する
-- `usecase` 層は具象実装（`adapter`）に依存せず、どの実装を使うかは `main.go` の DI で切り替える
+- **カプセル化**: 挿入や削除といった操作をオブジェクト（`InsertCommand`, `DeleteCommand`）として扱います。
+- **Undo/Redo**: コマンドが `Undo` メソッドを持つことで、エディタは操作を逆順に実行して元に戻すことができます。
+- **Invoker/Receiverの分離**: `Editor` (Invoker) はテキストの操作方法を知らず、`Command` に指示するだけです。`Command` は `Buffer` (Receiver) に対して操作を行います。
 
-## すぐ試す
+## 📝 シナリオ：テキストエディタ
 
-`command-example` ディレクトリで実行します。
-
-```bash
-go run main.go
-```
-
-## 📝 シナリオ: Undo機能付きテキストエディタ
-
-単純な文字列連結ではなく、全ての操作を「コマンドオブジェクト」としてカプセル化することで、操作履歴の管理（スタック）とUndoの実行を容易にします。
-
-### 登場人物
-1.  **Receiver (`domain.Buffer`)**: 実際に文字を保持しているバッファ。「文字を追加する」「削除する」といった基本操作を知っています。
-2.  **Command (`domain.Command`)**: 「何をしたいか」を表すインターフェース。`Do`と`Undo`を持ちます。
-3.  **Invoker (`usecase.Editor`)**: コマンドを受け取り、実行し、履歴(`stack`)に積む役割です。
-4.  **Concrete Command (`adapter.InsertCommand` etc)**: 具体的な操作。実行に必要なパラメータ（追加する文字列など）を保持します。
+テキストエディタを作っています。
+- **Undo（元に戻す）** 機能をサポートしたい。
+- ユーザーが "Hello" と打ち、" World" を追加し、3文字削除したとします。Ctrl+Z を押すと "Hello World" に戻るべきです。
+- **Command Pattern** はこれらの操作をスタックに保存するため、Undoは非常に簡単になります（スタックから取り出して `cmd.Undo()` を呼ぶだけ）。
 
 ## 🏗 アーキテクチャ構成
 
@@ -31,110 +21,79 @@ go run main.go
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Buffer {
-        +Content: string
+    namespace Domain {
+        class Buffer {
+            +Content string
+        }
+        class Command {
+            <<interface>>
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    class Command {
-        <<interface>>
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
+    namespace Usecase {
+        class Editor {
+            -buffer: *Buffer
+            -stack: []Command
+            -logger: Logger
+            +Execute(c Command)
+            +Undo()
+            +GetContent() string
+        }
     }
 
-    %% Usecase Layer (Invoker)
-    class Editor {
-        -buffer: Buffer
-        -stack: Command[]
-        +Execute(c: Command)
-        +Undo()
-    }
-
-    %% Adapter Layer (Concrete Commands)
-    class InsertCommand {
-        -textToInsert: string
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
-    }
-
-    class DeleteCommand {
-        -count: int
-        -deletedText: string
-        +Do(b: Buffer)
-        +Undo(b: Buffer)
+    namespace Adapter {
+        class InsertCommand {
+            -textToInsert: string
+            -logger: Logger
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
+        class DeleteCommand {
+            -count: int
+            -deletedText: string
+            -logger: Logger
+            +Do(b *Buffer)
+            +Undo(b *Buffer)
+        }
     }
 
     %% Relationships
-    Editor o-- Buffer : Owns
-    Editor o-- Command : History Stack
-    InsertCommand ..|> Command : Implements
-    DeleteCommand ..|> Command : Implements
-    
-    %% Operations
-    InsertCommand ..> Buffer : Modifies
-    DeleteCommand ..> Buffer : Modifies
+    Usecase.Editor --> Domain.Command : Executes
+    Usecase.Editor --> Domain.Buffer : Holds
+    Adapter.InsertCommand ..|> Domain.Command : Implements
+    Adapter.DeleteCommand ..|> Domain.Command : Implements
 ```
 
 ### 各レイヤーの役割
 
-1.  **Domain (`/domain`)**:
-    *   `Buffer`: アプリケーションの状態（テキストデータ）そのものです。
-    *   `Command`: インターフェース定義。
-2.  **Usecase (`/usecase`)**:
-    *   `Editor`: ユーザー入力を受け付ける窓口（Invoker）。
-    *   `Execute(c Command)`: コマンドを実行し、スタックに積みます。
-    *   `Undo()`: スタックからコマンドを取り出し、`Undo` メソッドを実行して状態を巻き戻します。
-3.  **Adapter (`/adapter`)**:
-    *   `InsertCommand`: 「追加」という行為のオブジェクト化。
-    *   `DeleteCommand`: 「削除」という行為のオブジェクト化。**ステートフル**である点に注目してください。`Do`を実行した際に「消された文字」を内部に保存し、`Undo`でそれを使って復元します。
+1. **Domain (`/domain`)**:
+    * `Buffer`: Receiver（受信者）。実際のデータ（テキスト）を保持します。
+    * `Command`: 操作のインターフェース。
+2. **Usecase (`/usecase`)**:
+    * `Editor`: Invoker（起動者）。コマンドの履歴（スタック）を管理し、コマンドを実行します。
+3. **Adapter (`/adapter`)**:
+    * `InsertCommand`, `DeleteCommand`: Concrete Command（具体的なコマンド）。パラメータ（挿入するテキスト、削除する文字数）と、`Do` / `Undo` のロジックを持ちます。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. なぜわざわざコマンドをオブジェクトにするのですか？
+### Q1. なぜ `Undo` ロジックが Command の中にあるのですか？
 
-**A. 「操作」をデータとして扱えるようにするためです。**
+**A. 何をしたかを知っているのは Command だけだからです。**
+`InsertCommand` だけが「何のテキストを挿入したか」を知っています。`DeleteCommand` だけが「何が削除されたか」を知っています（`Do` の実行時に削除されたテキストを保存し、`Undo` で復元します）。これを "Stateful Command" と呼びます。
 
-単に関数を呼び出すだけだと、その処理は「実行して終わり」で履歴に残りません。
-処理をオブジェクト(`struct`)にすることで、以下が可能になります。
-1.  **履歴管理**: 配列(`slice`)に入れて保存できる。
-2.  **Undo/Redo**: 「逆の操作」を定義しておくことで、時間を巻き戻せる。
-3.  **遅延実行/キューイング**: 作成だけして、後で実行する（ジョブキューなど）。
+### Q2. Redo（やり直し）も実装できますか？
 
-### Q2. `DeleteCommand` の `deletedText` は何ですか？
-
-**A. Undoのために必要な「スナップショット（状態）」です。**
-
-「3文字消す」というコマンドを実行したとき、単に「3文字戻す」だけでは**何が書かれていたか**分かりません。
-そのため、Command自体が実行時に「消されたデータ」を記憶しておきます。これを**Memento（メメント）**的な役割と呼ぶこともあります。
+**A. はい。**
+もう一つのスタック（`redoStack`）を用意します。`Undo` するときにそのコマンドを `redoStack` に積み、`Redo` するときは `redoStack` から取り出して `Do` を呼び、再びヒストリースタックに戻します。
 
 ## 🚀 実行方法
 
 ```bash
 go run main.go
-```
-
-### 実行結果の例
-
-```text
-=== Command Pattern Editor Demo ===
-Initial Buffer: ""
-
-[CMD] Inserted: 'Hello'
-Current Buffer: "Hello"
-[CMD] Inserted: ' World'
-Current Buffer: "Hello World"
-[CMD] Inserted: '!!!'
-Current Buffer: "Hello World!!!"
-
---- Oops, too excited. Deleting '!!!' ---
-[CMD] Deleted last 3 chars: '!!!'
-Current Buffer: "Hello World"
-
---- Wait, I wanted them back! (Undo) ---
-[CMD] Undid Delete: Restored '!!!'
-Current Buffer: "Hello World!!!"
-
---- Undo again (Remove '!!!') ---
-[CMD] Undid Insert: Removed '!!!'
-Current Buffer: "Hello World"
 ```

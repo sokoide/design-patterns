@@ -7,6 +7,7 @@ This project is an educational sample code that implements the **Adapter Pattern
 - Converting an incompatible interface (USB) into the expected one (Lightning)
 - Reusing an existing implementation without modifying it
 - Implementing the adapter via composition/delegation, which is idiomatic in Go
+- Using **Clean Architecture** to separate the client logic (`usecase`) from the concrete adapters (`adapter`)
 
 ## Quick Start
 
@@ -18,7 +19,7 @@ go run main.go
 
 ## 🔌 Scenario: Lightning Connector and USB Port
 
-A Mac user (client) wants to plug in a "Lightning connector."
+A user (client) wants to plug in a "Lightning connector."
 However, the machine they have (service) is a "Windows" machine with only a "USB port."
 Since they cannot connect directly, they use a "Windows adapter" to convert the Lightning signal to USB for connection.
 
@@ -34,37 +35,56 @@ Since they cannot connect directly, they use a "Windows adapter" to convert the 
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Computer {
-        <<interface>>
-        +InsertIntoLightningPort()
+    namespace Domain {
+        class Computer {
+            <<interface>>
+            +InsertIntoLightningPort()
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    %% Adapter Layer
-    class Mac {
-        +InsertIntoLightningPort()
+    namespace Usecase {
+        class Client {
+            -logger: Logger
+            +InsertLightningConnectorIntoComputer(com: Computer)
+        }
     }
 
-    class Windows {
-        +insertIntoUSBPort()
-    }
+    namespace Adapter {
+        class Mac {
+            -logger: Logger
+            +InsertIntoLightningPort()
+        }
 
-    class WindowsAdapter {
-        -windowMachine: Windows
-        +InsertIntoLightningPort()
+        class Windows {
+            -logger: Logger
+            +insertIntoUSBPort()
+        }
+
+        class WindowsAdapter {
+            -windowMachine: Windows
+            -logger: Logger
+            +InsertIntoLightningPort()
+        }
     }
 
     %% Relationships
-    Mac ..|> Computer : Implements
-    WindowsAdapter ..|> Computer : Implements
-    WindowsAdapter o-- Windows : Wraps
+    Usecase.Client --> Domain.Computer : Uses
+    Adapter.Mac ..|> Domain.Computer : Implements
+    Adapter.WindowsAdapter ..|> Domain.Computer : Implements
+    Adapter.WindowsAdapter o-- Adapter.Windows : Wraps
 ```
 
 ### Role of Each Layer
 
 1. **Domain (`/domain`)**:
-    * `Computer`: An interface that defines the operation "insert into Lightning port." The client (the `Client` struct in `main.go`) depends on this.
-2. **Adapter (`/adapter`)**:
+    * `Computer`: An interface that defines the operation "insert into Lightning port." The client logic depends on this.
+2. **Usecase (`/usecase`)**:
+    * `Client`: Represents the business logic of using a computer. It only knows about the `Computer` interface, not whether it's a Mac or a Windows PC.
+3. **Adapter (`/adapter`)**:
     * `Mac`: A native class that implements the interface directly.
     * `Windows`: A class with an incompatible interface. It does not have `InsertIntoLightningPort`.
     * `WindowsAdapter`: Implements the `Computer` interface. When `InsertIntoLightningPort` is called, it internally calls the `Windows`'s `insertIntoUSBPort` to make things work.

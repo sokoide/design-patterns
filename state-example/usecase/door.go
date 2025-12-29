@@ -9,25 +9,27 @@ import (
 // It maintains the current state.
 type DoorContext struct {
 	currentState domain.DoorState
+	logger       domain.Logger
 }
 
-func NewDoorContext(initialState domain.DoorState) *DoorContext {
+func NewDoorContext(initialState domain.DoorState, logger domain.Logger) *DoorContext {
 	return &DoorContext{
 		currentState: initialState,
+		logger:       logger,
 	}
 }
 
 // ExecuteAction accepts an external input (A or B) and delegates logic to the current state.
 func (d *DoorContext) ExecuteAction(action domain.Action) {
-	fmt.Printf("[Input %s] (Current: %-20s) -> ", action, d.currentState.Name())
-
+	initialStateName := d.currentState.Name()
 	nextState, msg, err := d.currentState.Handle(action)
+
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		d.logger.Log(fmt.Sprintf("[Input %s] (Current: %-20s) -> Error: %v", action, initialStateName, err))
 		return
 	}
 
-	fmt.Printf("%s -> New State: %s\n", msg, nextState.Name())
+	d.logger.Log(fmt.Sprintf("[Input %s] (Current: %-20s) -> %s -> New State: %s", action, initialStateName, msg, nextState.Name()))
 	d.currentState = nextState
 }
 

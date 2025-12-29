@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 )
 
 // Server represents a complex server with many configuration options.
+// The fields are unexported to enforce the use of options.
 type Server struct {
 	host    string
 	port    int
@@ -17,8 +18,8 @@ type Server struct {
 // Option is a function type that modifies the Server configuration.
 type Option func(*Server)
 
-// NewServer creates a new Server with default settings, applying any provided Options.
-func NewServer(options ...Option) *Server {
+// New creates a new Server with default settings, applying any provided Options.
+func New(options ...Option) *Server {
 	// 1. Set default values
 	srv := &Server{
 		host:    "localhost",

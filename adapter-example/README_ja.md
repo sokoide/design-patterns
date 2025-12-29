@@ -1,12 +1,13 @@
 # Go Adapter Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Adapter Pattern（アダプターパターン）**を実装した教育用のサンプルコードです。互換性のないインターフェースを持つクラス同士を接続し、既存のコードを修正せずに再利用する方法を学びます。
+このプロジェクトは、**Go**言語を用いて**Adapter Pattern（アダプターパターン）**を実装した教育用のサンプルコードです。互換性のないインターフェースを持つクラス同士を接続し、既存のコードを変更せずに再利用する方法を学びます。
 
 ## この例で学べること
 
-- 互換性のないインターフェース（USB）を期待される形（Lightning）へ変換する流れ
-- 既存実装を修正せずに再利用できること
-- Go では継承ではなく合成/委譲で Adapter を作るのが自然なこと
+- 互換性のないインターフェース（USB）を期待するインターフェース（Lightning）に変換する
+- 既存の実装（Windowsマシン）を変更することなく再利用する
+- Goのイディオムであるコンポジション（委譲）を使ったアダプターの実装
+- **Clean Architecture**を用いたクライアントロジック（`usecase`）と具体的なアダプター（`adapter`）の分離
 
 ## すぐ試す
 
@@ -16,16 +17,17 @@
 go run main.go
 ```
 
-## 🔌 シナリオ: LightningコネクタとUSBポート
+## 🔌 シナリオ：LightningコネクタとUSBポート
 
-Macユーザー（クライアント）は「Lightningコネクタ」を挿したいと考えています。
-しかし、手元にあるマシン（サービス）は「Windows」で、「USBポート」しか持っていません。
-そのままでは接続できないため、「Windowsアダプタ」を介して、Lightningの信号をUSBに変換して接続します。
+ユーザー（クライアント）は「Lightningコネクタ」を挿したいと考えています。
+しかし、持っているマシン（サービス）は「Windows」マシンで、「USBポート」しかありません。
+直接接続できないため、「Windowsアダプター」を使ってLightning信号をUSBに変換して接続します。
 
 ### 登場人物
-1.  **Client Interface (`domain.Computer`)**: クライアントが期待しているインターフェース（Lightningポートへの挿入）。
-2.  **Service (`adapter.Windows`)**: 使いたい既存クラス。インターフェースが異なる（USBポートへの挿入）。
-3.  **Adapter (`adapter.WindowsAdapter`)**: 仲介役。Client Interfaceを実装し、内部でServiceのメソッドを呼び出します。
+
+1. **Client Interface (`domain.Computer`)**: クライアントが期待するインターフェース（Lightningポートへの挿入）。
+2. **Service (`adapter.Windows`)**: 利用したい既存のクラスだが、インターフェースが異なる（USBポートへの挿入）。
+3. **Adapter (`adapter.WindowsAdapter`)**: 仲介役。クライアントのインターフェースを実装し、内部でサービスのメソッドを呼び出す。
 
 ## 🏗 アーキテクチャ構成
 
@@ -33,56 +35,73 @@ Macユーザー（クライアント）は「Lightningコネクタ」を挿し�
 classDiagram
     direction TB
 
-    %% Domain Layer
-    class Computer {
-        <<interface>>
-        +InsertIntoLightningPort()
+    namespace Domain {
+        class Computer {
+            <<interface>>
+            +InsertIntoLightningPort()
+        }
+        class Logger {
+            <<interface>>
+            +Log(message string)
+        }
     }
 
-    %% Adapter Layer
-    class Mac {
-        +InsertIntoLightningPort()
+    namespace Usecase {
+        class Client {
+            -logger: Logger
+            +InsertLightningConnectorIntoComputer(com: Computer)
+        }
     }
 
-    class Windows {
-        +insertIntoUSBPort()
-    }
+    namespace Adapter {
+        class Mac {
+            -logger: Logger
+            +InsertIntoLightningPort()
+        }
 
-    class WindowsAdapter {
-        -windowMachine: Windows
-        +InsertIntoLightningPort()
+        class Windows {
+            -logger: Logger
+            +insertIntoUSBPort()
+        }
+
+        class WindowsAdapter {
+            -windowMachine: Windows
+            -logger: Logger
+            +InsertIntoLightningPort()
+        }
     }
 
     %% Relationships
-    Mac ..|> Computer : Implements
-    WindowsAdapter ..|> Computer : Implements
-    WindowsAdapter o-- Windows : Wraps
+    Usecase.Client --> Domain.Computer : Uses
+    Adapter.Mac ..|> Domain.Computer : Implements
+    Adapter.WindowsAdapter ..|> Domain.Computer : Implements
+    Adapter.WindowsAdapter o-- Adapter.Windows : Wraps
 ```
 
 ### 各レイヤーの役割
 
-1.  **Domain (`/domain`)**:
-    *   `Computer`: 「Lightningポートに挿す」という操作を定義したインターフェース。クライアント（`main.go`のClient struct）はこれに依存します。
-2.  **Adapter (`/adapter`)**:
-    *   `Mac`: インターフェースをそのまま実装しているネイティブなクラス。
-    *   `Windows`: 互換性のないインターフェースを持つクラス。`InsertIntoLightningPort` を持っていません。
-    *   `WindowsAdapter`: `Computer` インターフェースを実装し、`InsertIntoLightningPort` が呼ばれたら、内部で `Windows` の `insertIntoUSBPort` を呼び出して辻褄を合わせます。
+1. **Domain (`/domain`)**:
+    * `Computer`: 「Lightningポートに挿入する」という操作を定義するインターフェース。クライアントロジックはこれに依存します。
+2. **Usecase (`/usecase`)**:
+    * `Client`: コンピュータを利用するビジネスロジックを表します。相手がMacかWindowsかを知らず、単に`Computer`インターフェースを使います。
+3. **Adapter (`/adapter`)**:
+    * `Mac`: インターフェースを直接実装するネイティブなクラス。
+    * `Windows`: 互換性のないインターフェースを持つクラス。`InsertIntoLightningPort` を持ちません。
+    * `WindowsAdapter`: `Computer` インターフェースを実装します。`InsertIntoLightningPort` が呼ばれると、内部で `Windows` の `insertIntoUSBPort` を呼び出して辻褄を合わせます。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. いつ使いますか？
+### Q1. どんな時に使うべき？
 
-**A. 既存のライブラリや古いコードを、新しいインターフェースで使いたいときです。**
+**A. 既存のライブラリや古いコードを、新しいインターフェースに合わせて再利用したい時です。**
 
-例えば、新しく定義した `Logger` インターフェースがあり、過去のプロジェクトで使っていた `OldLogLib` クラスを再利用したいとします。
-`OldLogLib` のコードを書き換えるのはリスクがあるため、Adapterを作ってラップするのが安全です。
+例えば、新しく定義した `Logger` インターフェースがあり、過去のプロジェクトで作った `OldLogLib` クラスを再利用したいとします。`OldLogLib` のコードを書き換えるのはリスクが高いため、Adapterでラップして使うのが安全です。
 
-### Q2. GoにおけるAdapterのポイントは？
+### Q2. GoでのAdapter実装のポイントは？
 
-**A. Composition（委譲）を使うのが一般的です。**
+**A. コンポジション（委譲）を使うのが一般的です。**
 
-Goには継承がないため、Adapter構造体の中に「変換対象の構造体」をフィールドとして持ち（`Embedded` または `Field`）、ラッパーメソッドを実装します。
-「継承状のアダプタ（Class Adapter）」ではなく「委譲状のアダプタ（Object Adapter）」の形式になります。
+Goには継承がないため、Adapter構造体が「変換対象の構造体」をフィールド（埋め込みまたは通常のフィールド）として持ち、ラッパーメソッドを実装します。これは「クラスアダプター」パターンではなく「オブジェクトアダプター」パターンに相当します。
 
 ## 🚀 実行方法
 

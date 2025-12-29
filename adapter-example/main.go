@@ -1,32 +1,24 @@
 package main
 
 import (
-	"adapter-example/adapter"
-	"adapter-example/domain"
 	"fmt"
+
+	"adapter-example/adapter"
+	"adapter-example/usecase"
 )
-
-type Client struct{}
-
-func (c *Client) InsertLightningConnectorIntoComputer(com domain.Computer) {
-	fmt.Println("Client inserts Lightning connector into computer.")
-	com.InsertIntoLightningPort()
-}
 
 func main() {
 	fmt.Println("=== Adapter Pattern ===")
 
-	client := &Client{}
-	mac := &adapter.Mac{}
+	logger := adapter.NewConsoleLogger()
+	client := usecase.NewClient(logger)
 
 	fmt.Println("\n[Client] Using Mac:")
+	mac := adapter.NewMac(logger)
 	client.InsertLightningConnectorIntoComputer(mac)
 
-	windowsMachine := &adapter.Windows{}
-	windowsAdapter := &adapter.WindowsAdapter{
-		WindowMachine: windowsMachine,
-	}
-
 	fmt.Println("\n[Client] Using Windows via Adapter:")
+	windowsMachine := adapter.NewWindows(logger)
+	windowsAdapter := adapter.NewWindowsAdapter(windowsMachine, logger)
 	client.InsertLightningConnectorIntoComputer(windowsAdapter)
 }

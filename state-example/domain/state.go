@@ -21,3 +21,7 @@ type DoorState interface {
 var (
 	ErrInvalidAction = errors.New("action not valid for current state")
 )
+
+type Logger interface {
+	Log(message string)
+}

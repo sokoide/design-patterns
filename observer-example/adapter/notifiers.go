@@ -16,40 +16,49 @@ var (
 
 type EmailNotifier struct {
 	emailAddress string
+	logger       domain.Logger
 }
 
-func NewEmailNotifier(email string) *EmailNotifier {
-	return &EmailNotifier{emailAddress: email}
+func NewEmailNotifier(email string, logger domain.Logger) *EmailNotifier {
+	return &EmailNotifier{
+		emailAddress: email,
+		logger:       logger,
+	}
 }
 
 func (e *EmailNotifier) OnUpdate(event string) {
-	// Simulate sending an email
-	fmt.Printf("📧 [Email to %s] Received update: %s\n", e.emailAddress, event)
+	e.logger.Log(fmt.Sprintf("📧 [Email to %s] Received update: %s", e.emailAddress, event))
 }
 
 // --- 2. Slack Notifier ---
 
 type SlackNotifier struct {
 	webhookID string
+	logger    domain.Logger
 }
 
-func NewSlackNotifier(webhookID string) *SlackNotifier {
-	return &SlackNotifier{webhookID: webhookID}
+func NewSlackNotifier(webhookID string, logger domain.Logger) *SlackNotifier {
+	return &SlackNotifier{
+		webhookID: webhookID,
+		logger:    logger,
+	}
 }
 
 func (s *SlackNotifier) OnUpdate(event string) {
-	// Simulate posting to Slack
-	fmt.Printf("💬 [Slack #%s] 🚨 Notification: %s\n", s.webhookID, event)
+	s.logger.Log(fmt.Sprintf("💬 [Slack #%s] 🚨 Notification: %s", s.webhookID, event))
 }
 
 // --- 3. Logger Notifier ---
+// Ideally this wraps the logger itself to log events as a distinct observer.
 
-type LogNotifier struct{}
+type LogNotifier struct {
+	logger domain.Logger
+}
 
-func NewLogNotifier() *LogNotifier {
-	return &LogNotifier{}
+func NewLogNotifier(logger domain.Logger) *LogNotifier {
+	return &LogNotifier{logger: logger}
 }
 
 func (l *LogNotifier) OnUpdate(event string) {
-	fmt.Printf("📝 [System Log] Event recorded: %s\n", event)
+	l.logger.Log(fmt.Sprintf("📝 [System Log] Event recorded: %s", event))
 }

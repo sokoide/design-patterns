@@ -17,3 +17,8 @@ type Command interface {
 	Do(b *Buffer)
 	Undo(b *Buffer)
 }
+
+// Logger defines the interface for logging.
+type Logger interface {
+	Log(message string)
+}

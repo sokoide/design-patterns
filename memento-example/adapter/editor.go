@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"fmt"
 	"memento-example/domain"
 )
 
@@ -24,24 +23,7 @@ func (e *Editor) CreateMemento() *domain.Memento {
 
 func (e *Editor) Restore(m *domain.Memento) {
 	if m == nil {
-		fmt.Println("[WARN] no memento to restore")
 		return
 	}
 	e.content = m.GetSavedState()
-}
-
-// Caretaker
-type Caretaker struct {
-	mementoArray []*domain.Memento
-}
-
-func (c *Caretaker) AddMemento(m *domain.Memento) {
-	c.mementoArray = append(c.mementoArray, m)
-}
-
-func (c *Caretaker) GetMemento(index int) *domain.Memento {
-	if index < 0 || index >= len(c.mementoArray) {
-		return nil
-	}
-	return c.mementoArray[index]
 }

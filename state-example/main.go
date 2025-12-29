@@ -8,9 +8,12 @@ import (
 )
 
 func main() {
+	// Setup Dependencies
+	logger := adapter.NewConsoleLogger()
+
 	// Start with a Locked Door
 	initialState := adapter.NewLockedState()
-	door := usecase.NewDoorContext(initialState)
+	door := usecase.NewDoorContext(initialState, logger)
 
 	fmt.Println("=== Door State Machine System Started ===")
 	fmt.Printf("Initial State: %s\n\n", door.GetStateName())

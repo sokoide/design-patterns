@@ -1,31 +1,21 @@
 # Go Facade Pattern Example (Clean Architecture)
 
-このプロジェクトは、**Go**言語を用いて**Facade Pattern（ファサードパターン）**を実装した教育用のサンプルコードです。
-多数のサブシステム（照明、オーディオ、プロジェクターなど）の複雑な操作手順を、単一のインターフェース（`SmartHomeFacade`）の裏側に隠蔽し、クライアントが簡単に利用できるようにします。
+このプロジェクトは、**Go**言語を用いて**Facade Pattern（ファサードパターン）**を実装した教育用のサンプルコードです。複雑なサブシステムの集合に対して、シンプルで統一されたインターフェース（窓口）を提供する方法を学びます。
 
 ## この例で学べること
 
-- 複数のサブシステムを 1 つの窓口（`SmartHomeFacade`）にまとめて隠蔽する考え方
-- クライアントは 1 回のメソッド呼び出しで複雑な一連処理を実行できること
-- ファサードとサブシステムの組み立ては `main.go` で行う流れ
+- **シンプルな窓口の提供**: `SmartHomeFacade` が `StartMovieMode` のようなメソッドを提供し、照明・オーディオ・プロジェクター等の複雑な連携を隠蔽します。
+- **結合度の低減**: クライアントコード（`main.go`）は主にFacadeと対話するため、サブシステムの変更影響を受けにくくなります。
+- **Clean Architecture構成**:
+    - **Domain**: デバイスのインターフェース定義 (`Lighting`, `AudioSystem` など)。
+    - **Usecase**: ファサードのロジック (`SmartHomeFacade`)。
+    - **Adapter**: デバイスの具体的な実装 (`Lighting`, `Projector` など)。
 
-## すぐ試す
+## 🏠 シナリオ：スマートホーム
 
-`facade-example` ディレクトリで実行します。
-
-```bash
-go run main.go
-```
-
-## 🏠 シナリオ: スマートホームのシアターモード
-
-映画を見ようとするとき、ユーザーは以下の操作をひとつひとつ行いたくありません。
-1.  コーヒーメーカーの電源を切る
-2.  照明を暗くする
-3.  スクリーンを下ろす
-4.  プロジェクターをつける...
-
-Facadeパターンを使って、「映画モード開始(`StartMovie`)」というたった一つのボタン（メソッド）ですべてを連動させます。
+あなたの家には、照明、オーディオ、プロジェクター、スクリーン、コーヒーメーカーなど多くのデバイスがあります。
+「映画を見る」ためには、10以上の操作（照明を暗くし、スクリーンを下げ、プロジェクターをつけ、入力を切り替え...）が必要です。
+**Facade** は、これらを一括で行う `StartMovieMode` ボタンを提供します。
 
 ## 🏗 アーキテクチャ構成
 
@@ -33,60 +23,89 @@ Facadeパターンを使って、「映画モード開始(`StartMovie`)」とい
 classDiagram
     direction TB
 
-    %% Client
-    class Client {
-        +main()
+    namespace Domain {
+        class Lighting {
+            <<interface>>
+            +On()
+            +Off()
+            +Dim(level int)
+        }
+        class AudioSystem {
+            <<interface>>
+            +On()
+            +Off()
+            +SetVolume(vol int)
+        }
+        class Projector {
+            <<interface>>
+            +On()
+            +Off()
+        }
+        class Screen {
+            <<interface>>
+            +Up()
+            +Down()
+        }
     }
 
-    %% Facade Layer
-    class SmartHomeFacade {
-        -light: Lighting
-        -audio: AudioSystem
-        -projector: Projector
-        -screen: Screen
-        -coffee: CoffeeMaker
-        +StartMovie(movie: string)
-        +StopMovie()
+    namespace Usecase {
+        class SmartHomeFacade {
+            -light: Lighting
+            -audio: AudioSystem
+            -projector: Projector
+            -screen: Screen
+            +StartMovieMode(movie string)
+            +EndMovieMode()
+        }
     }
 
-    %% Subsystems (Complex Layer)
-    class Lighting { +Dim(level) }
-    class AudioSystem { +On() +SetVolume(v) }
-    class Projector { +On() +SetInput(src) }
-    class Screen { +Down() +Up() }
-    class CoffeeMaker { +Off() }
+    namespace Adapter {
+        class LightingImpl {
+            +On()
+            +Off()
+        }
+        class AudioImpl {
+            +On()
+            +Off()
+        }
+        class ProjectorImpl {
+            +On()
+            +Off()
+        }
+    }
 
     %% Relationships
-    Client --> SmartHomeFacade : Uses Simple API
-    SmartHomeFacade o-- Lighting
-    SmartHomeFacade o-- AudioSystem
-    SmartHomeFacade o-- Projector
-    SmartHomeFacade o-- Screen
-    SmartHomeFacade o-- CoffeeMaker
+    Usecase.SmartHomeFacade --> Domain.Lighting : Uses
+    Usecase.SmartHomeFacade --> Domain.AudioSystem : Uses
+    Adapter.LightingImpl ..|> Domain.Lighting : Implements
+    Adapter.AudioImpl ..|> Domain.AudioSystem : Implements
+    Adapter.ProjectorImpl ..|> Domain.Projector : Implements
 ```
 
 ### 各レイヤーの役割
 
-1.  **Facade (`/facade`)**:
-    *   `SmartHomeFacade`: サブシステムの複雑さを隠蔽する「窓口」。
-    *   クライアントに対してはシンプルなメソッド（`StartMovie`）のみを公開します。
-2.  **Subsystems (`/subsystems`)**:
-    *   `Lighting`, `AudioSystem`, etc.: それぞれが独立した機能を持つクラス群。Facadeのことは知りません。
+1. **Domain (`/domain`)**: 各サブシステム（デバイス）のインターフェースを定義します。
+2. **Usecase (`/usecase`)**: `SmartHomeFacade` を含みます。デバイスを協調させて、「映画モード」や「おはようモード」といった高レベルなタスクを実行します。
+3. **Adapter (`/adapter`)**: デバイスの具体的な実装を含みます。実際のアプリでは、IoT機器のAPIを叩く処理がここに入ります。
 
 ## 💡 アーキテクチャ設計ノート (Q&A)
 
-### Q1. Mediatorパターンとの違いは？
+### Q1. Facadeを使うと、サブシステムに直接アクセスできなくなりますか？
 
-**A. 「一方向」か「双方向」かが違います。**
+**A. いいえ、できません。**
+Facadeはあくまで「便利なショートカット」を提供するだけです。細かい制御が必要な場合は、サブシステムに直接アクセスすることも可能です（禁止されていなければ）。
 
-*   **Facade**: クライアントからサブシステムへの「一方向」のインターフェースをシンプルにするのが目的です。サブシステム同士は連携しません（あるいはFacadeがそれを隠蔽します）。
-*   **Mediator**: オブジェクト同士が「双方向」に連携する場合の複雑さを整理するのが目的です。
+### Q2. Facadeは「神クラス（God Object）」になりませんか？
 
-### Q2. Facadeはシングルトンにするべきですか？
+**A. 注意しないとそうなります。**
+Facadeはあくまで処理を「委譲」すべきであり、複雑なビジネスロジックを自ら持つべきではありません。もし巨大になりすぎたら、機能ごとに分割（`EntertainmentFacade`, `KitchenFacade` など）することを検討してください。
 
-**A. 多くの場合、シングルトンにするのが自然です。**
+### Q3. Facadeはシングルトン（Singleton）にすべきですか？
 
-システム全体で一つの「窓口」があれば十分な場合が多いためです。ただし、必須ではありません。
+**A. インスタンスは1つで十分ですが、Singletonパターン（Global変数）は避けましょう。**
+
+Facadeはシステム内に1つあれば十分なことが多いですが、`GetInstance()`のようなグローバルアクセスを提供する「Singletonパターン」にしてしまうと、テストが困難になります。
+`main.go` で1つだけインスタンスを生成し、それを必要な場所に渡す（Dependency Injection）設計を推奨します。
 
 ## 🚀 実行方法
 

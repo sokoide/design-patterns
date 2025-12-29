@@ -3,16 +3,24 @@ package main
 import (
 	"fmt"
 	"proxy-example/adapter"
+	"proxy-example/usecase"
 )
 
 func main() {
 	fmt.Println("=== Proxy Pattern ===")
 
-	nginx := adapter.NewNginx()
+	logger := adapter.NewConsoleLogger()
+
+	// 1. Create the Real Subject (AppServer)
+	appServer := adapter.NewAppServer(logger)
+
+	// 2. Create the Proxy (Nginx) wrapping the AppServer
+	nginx := adapter.NewNginx(appServer, logger)
+
+	// 3. Client interacts with Nginx
+	client := usecase.NewClient(logger)
 	appUrl := "/app/status"
 
-	for i := 0; i < 4; i++ {
-		code, body := nginx.HandleRequest(appUrl, "GET")
-		fmt.Printf("Request %d: Code=%d, Body=%s\n", i+1, code, body)
-	}
+	// Send 4 requests (limit is 2)
+	client.SendRequests(nginx, appUrl, 4)
 }

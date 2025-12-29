@@ -8,15 +8,10 @@ type TreeFactory struct {
 	treeTypes map[string]*domain.TreeType
 }
 
-var instance *TreeFactory
-
-func GetFactory() *TreeFactory {
-	if instance == nil {
-		instance = &TreeFactory{
-			treeTypes: make(map[string]*domain.TreeType),
-		}
+func NewTreeFactory() *TreeFactory {
+	return &TreeFactory{
+		treeTypes: make(map[string]*domain.TreeType),
 	}
-	return instance
 }
 
 func (f *TreeFactory) GetTreeType(name, color, texture string) *domain.TreeType {

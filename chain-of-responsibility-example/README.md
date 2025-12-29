@@ -28,39 +28,46 @@ Instead of putting all this logic into one giant function (a block of `if else` 
 1.  **Handler (`domain.Department`)**: The common interface. It has `Execute(*Patient)` and `SetNext(Department)`.
 2.  **Concrete Handler (`adapter.Reception`, `adapter.Doctor`, `adapter.Cashier`)**: The specific processing. After finishing its own work (or if it cannot handle the request), it passes the request to the `next` handler.
 3.  **Request (`domain.Patient`)**: The data to be processed.
+4.  **UseCase (`usecase.PatientVisitService`)**: Encapsulates the business logic of a patient visiting the hospital, holding the reference to the first handler in the chain.
 
 ## 🏗 Architecture
 
 ```mermaid
 classDiagram
-    direction LR
-
-    %% Domain Layer
-    class Patient {
-        +Name: string
-        +RegistrationDone: bool
-        +DoctorCheckUpDone: bool
-        +PaymentDone: bool
+    namespace domain {
+        class Patient {
+            +Name: string
+            +RegistrationDone: bool
+            +DoctorCheckUpDone: bool
+            +PaymentDone: bool
+        }
+        class Department {
+            <<interface>>
+            +Execute(p: Patient)
+            +SetNext(d: Department)
+        }
     }
 
-    class Department {
-        <<interface>>
-        +Execute(p: Patient)
-        +SetNext(d: Department)
+    namespace usecase {
+        class PatientVisitService {
+            -chainHead: Department
+            +VisitHospital(p: Patient)
+        }
     }
 
-    %% Adapter Layer
-    class Reception {
-        -next: Department
-        +Execute(p: Patient)
-    }
-    class Doctor {
-        -next: Department
-        +Execute(p: Patient)
-    }
-    class Cashier {
-        -next: Department
-        +Execute(p: Patient)
+    namespace adapter {
+        class Reception {
+            -next: Department
+            +Execute(p: Patient)
+        }
+        class Doctor {
+            -next: Department
+            +Execute(p: Patient)
+        }
+        class Cashier {
+            -next: Department
+            +Execute(p: Patient)
+        }
     }
 
     %% Relationships
@@ -68,6 +75,7 @@ classDiagram
     Doctor ..|> Department : Implements
     Cashier ..|> Department : Implements
 
+    PatientVisitService --> Department : Uses (Head)
     Reception o-- Doctor : Next
     Doctor o-- Cashier : Next
 ```
@@ -77,7 +85,9 @@ classDiagram
 1.  **Domain (`/domain`)**:
     *   `Department`: The interface for the processing departments.
     *   `Patient`: The data passed along the chain. Flags (like `RegistrationDone`) are updated by each department.
-2.  **Adapter (`/adapter`)**:
+2.  **UseCase (`/usecase`)**:
+    *   `PatientVisitService`: Orchestrates the patient's visit by triggering the chain of responsibility. It doesn't know the specific implementation of the chain, only the `Department` interface.
+3.  **Adapter (`/adapter`)**:
     *   This is the implementation of each Handler. It performs its own processing within the `Execute` method and then calls the next Handler, like `r.next.Execute(p)`.
     *   This allows the caller (Client) to complete the entire process just by calling the first object in the chain (Reception).
 

@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"adapter-example/domain"
-	"fmt"
 )
 
 // Ensure implementations
@@ -11,26 +10,46 @@ var (
 	_ domain.Computer = (*WindowsAdapter)(nil)
 )
 
-// Client: Mac
-type Mac struct{}
+// Mac implements Computer interface directly.
+type Mac struct {
+	logger domain.Logger
+}
+
+func NewMac(logger domain.Logger) *Mac {
+	return &Mac{logger: logger}
+}
 
 func (m *Mac) InsertIntoLightningPort() {
-	fmt.Println("Lightning connector is plugged into Mac machine.")
+	m.logger.Log("Lightning connector is plugged into Mac machine.")
 }
 
-// Service: Windows (Unknown to Client)
-type Windows struct{}
+// Windows represents a legacy or incompatible component.
+type Windows struct {
+	logger domain.Logger
+}
+
+func NewWindows(logger domain.Logger) *Windows {
+	return &Windows{logger: logger}
+}
 
 func (w *Windows) insertIntoUSBPort() {
-	fmt.Println("USB connector is plugged into Windows machine.")
+	w.logger.Log("USB connector is plugged into Windows machine.")
 }
 
-// Adapter
+// WindowsAdapter makes Windows look like a Computer (Lightning).
 type WindowsAdapter struct {
-	WindowMachine *Windows
+	windowMachine *Windows
+	logger        domain.Logger
+}
+
+func NewWindowsAdapter(w *Windows, logger domain.Logger) *WindowsAdapter {
+	return &WindowsAdapter{
+		windowMachine: w,
+		logger:        logger,
+	}
 }
 
 func (w *WindowsAdapter) InsertIntoLightningPort() {
-	fmt.Println("Adapter converts Lightning signal to USB.")
-	w.WindowMachine.insertIntoUSBPort()
+	w.logger.Log("Adapter converts Lightning signal to USB.")
+	w.windowMachine.insertIntoUSBPort()
 }
