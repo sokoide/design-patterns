@@ -55,21 +55,20 @@ go test ./...
 
 ### 1. 生成に関するパターン (Creational Patterns)
 
-オブジェクトの生成プロセスを柔軟にするためのパターンですが、以下の理由により無視します。
+オブジェクトの生成プロセスを柔軟にするためのパターンですが、Go の特性上、標準的なコンストラクタで十分な場合が多く、本リポジトリでは以下の理由により実装を省略（または無視）しています。
 
-- [**Builder**](./builder-example) (`builder-example`): 複雑な生成手順を分離し、同じ手順で異なる表現を構築します。
-  - Goでは**FUnctional Options**を使いますので、無視してください。
-- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): 関連する一連の生成を、具体型に依存せず切り替えられるようにします。
-  - Abstract Factoryは実際使われることはまずありません。無視してください。
-- [**Factory Method**](./factory-example) (`factory-example`): 生成の責務をインターフェース/実装側へ委ね、呼び出し側の依存を減らします。
-  - Factory MethodはGoではあまり見かけません。
-  - `NewServer(cfg Config) (*Server, error)`, `Open(path string *File, error`はConctructor
-  - `tracer.Start(ctx context.Context, name string, opts ...SpanStartOption) (context.Context, Span)`などはFactory的に使われるが、Factoryではない
-  - 動的にインスタンスを作り分ける必要がなかったらFactoryは使わなくていい
-- [**Singleton**](./singleton-example) (`singleton-example`): インスタンスが一つだけになるよう管理します。
-  - 不要です。テスト性、テスト性、並行性の観点からむしろ避けましょう。
-- [**Prototype**](./prototype-example) (`prototype-example`): 既存インスタンスを複製して新しいインスタンスを作ります。
-  - コピーのコストが小さいので、普通に`b := a`のようにコピーします。無視します。
+- **Builder** (`builder-example`): 複雑な生成手順を分離し、同じ手順で異なる表現を構築します。
+  - Go では **Functional Options** を使うことが多いため、省略します。
+- **Abstract Factory** (`abstract-factory-example`): 関連する一連の生成を、具体型に依存せず切り替えられるようにします。
+  - 実際使われることはまずありません。省略します。
+- **Factory Method** (`factory-example`): 生成の責務をインターフェース/実装側へ委ね、呼び出し側の依存を減らします。
+  - Go ではあまり見かけません。
+  - `NewServer(cfg Config) (*Server, error)` や `Open(path string) (*File, error)` などのコンストラクタで事足りることがほとんどです。
+  - 動的にインスタンスを作り分ける必要がなければ使いません。
+- **Singleton** (`singleton-example`): インスタンスが一つだけになるよう管理します。
+  - **避けるべき** です。テスト性や並行性の観点からグローバルな状態は推奨されません。
+- **Prototype** (`prototype-example`): 既存インスタンスを複製して新しいインスタンスを作ります。
+  - 構造体のコピーコストが小さいため（`b := a`）、省略します。
 
 ### 2. 構造に関するパターン (Structural Patterns)
 
@@ -77,15 +76,15 @@ go test ./...
 
 - [**Adapter**](./adapter-example) (`adapter-example`): 互換性のないインターフェース同士をつなぎます。
 - [**Decorator**](./decorator-example) (`decorator-example`): 既存オブジェクトに機能を動的に重ねます。
-- [**Composite**](./composite-example) (`composite-example`): 部分と全体を同一視し、木構造を同じ操作で扱えるようにします。
+- **Composite** (`composite-example`): 部分と全体を同一視し、木構造を同じ操作で扱えるようにします。
 - [**Facade**](./facade-example) (`facade-example`): 複雑なサブシステムに対して単純な窓口を提供します。
 - [**Proxy**](./proxy-example) (`proxy-example`): 本体の代わりに代理が処理し、アクセス制御や遅延初期化を行います。
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): 共有により多数のインスタンスを効率よく扱います。
 
 以下は無視します。
 
-- [**Bridge**](./bridge-example) (`bridge-example`): 抽象（利用側）と実装（提供側）を分離し、独立に拡張できるようにします。
-  - `interface`があるため、不要です。
+- **Bridge** (`bridge-example`): 抽象（利用側）と実装（提供側）を分離し、独立に拡張できるようにします。
+  - `interface` があるため不要です。
 
 ### 3. 振る舞いに関するパターン (Behavioral Patterns)
 
@@ -100,16 +99,16 @@ go test ./...
 
 以下は無視します。
 
-- [**Iterator**](./iterator-example) (`iterator-example`): 内部構造を隠したまま要素を順に走査します。
-  - `for range`があるし、自分でIterateするときは`Next() (T, bool)`するだけなので、飛ばします。
-- [**Mediator**](./mediator-example) (`mediator-example`): 相互作用を仲介役に集約し、依存関係を整理します。
-  - 使うと巨大なGod Objectになりがちなので、飛ばします。
-- [**Template Method**](./template-method-example) (`template-method-example`): 処理の骨格を共通化し、差分だけを実装側に委ねます。
-  - Goでは継承がないので、関数・小さいInterfaceとcompositionで達成しますので、飛ばします。
-- [**Visitor**](./visitor-example) (`visitor-example`): データ構造と処理を分離し、構造を変えずに新しい処理を追加します。
-  - 言語処理系を作るとき便利ですが、それ以外は`switch n := n.(type)`で代替されることが多いので、飛ばします。
-- [**Interpreter**](./interpreter-example) (`interpreter-example`): 文法規則を構造化して表現し、解釈・実行します。
-  - Interpreter/Compilerはみんな大好き、一度は作るものなので、ここでは飛ばします。
+- **Iterator** (`iterator-example`): 内部構造を隠したまま要素を順に走査します。
+  - `for range` があるし、自分で Iterate するときは `Next() (T, bool)` するだけなので、飛ばします。
+- **Mediator** (`mediator-example`): 相互作用を仲介役に集約し、依存関係を整理します。
+  - 使うと巨大な God Object になりがちなので、飛ばします。
+- **Template Method** (`template-method-example`): 処理の骨格を共通化し、差分だけを実装側に委ねます。
+  - Go では継承がないので、関数・小さいインターフェースとコンポジションで達成します。
+- **Visitor** (`visitor-example`): データ構造と処理を分離し、構造を変えずに新しい処理を追加します。
+  - 言語処理系を作るとき便利ですが、それ以外は `switch n := n.(type)` で代替されることが多いため、飛ばします。
+- **Interpreter** (`interpreter-example`): 文法規則を構造化して表現し、解釈・実行します。
+  - インタプリタやコンパイラを作る際には重要ですが、本リポジトリでは対象外とします。
 
 ### その他のパターン
 

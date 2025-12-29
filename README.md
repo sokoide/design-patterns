@@ -57,18 +57,18 @@ Each example typically follows this Clean Architecture layout:
 
 ### 1. Creational Patterns
 
-Patterns that make object creation more flexible. Some are marked as "ignored" or "avoided" because they are less idiomatic in Go.
+Patterns that make object creation more flexible. Many of these are omitted because standard constructors are often sufficient in Go, or they are less idiomatic.
 
-- [**Builder**](./builder-example) (`builder-example`): Separates complex construction steps.
-  - **Note**: In Go, we usually use **Functional Options**, so this is mostly ignored.
-- [**Abstract Factory**](./abstract-factory-example) (`abstract-factory-example`): Switches between families of related products.
-  - **Note**: Rarely used in practice. Ignored.
-- [**Factory Method**](./factory-example) (`factory-example`): Delegates creation to implementations.
-  - **Note**: Not very common in Go. `NewServer(cfg Config)` style constructors are usually sufficient. Use it only if you need to create instances dynamically.
-- [**Singleton**](./singleton-example) (`singleton-example`): Manages a single shared instance.
+- **Builder** (`builder-example`): Separates complex construction steps.
+  - **Note**: In Go, we usually use **Functional Options**, so this is omitted.
+- **Abstract Factory** (`abstract-factory-example`): Switches between families of related products.
+  - **Note**: Rarely used in practice. Omitted.
+- **Factory Method** (`factory-example`): Delegates creation to implementations.
+  - **Note**: Not very common in Go. `NewServer(cfg Config)` style constructors are usually sufficient.
+- **Singleton** (`singleton-example`): Manages a single shared instance.
   - **Note**: **Avoid**. It hinders testability and can cause concurrency issues.
-- [**Prototype**](./prototype-example) (`prototype-example`): Creates new objects by cloning.
-  - **Note**: Since copying structs is cheap (`b := a`), this is mostly ignored.
+- **Prototype** (`prototype-example`): Creates new objects by cloning.
+  - **Note**: Since copying structs is cheap (`b := a`), this is omitted.
 
 ### 2. Structural Patterns
 
@@ -76,15 +76,15 @@ Patterns for composing objects and classes into larger structures.
 
 - [**Adapter**](./adapter-example) (`adapter-example`): Connects incompatible interfaces.
 - [**Decorator**](./decorator-example) (`decorator-example`): Layers additional behavior dynamically.
-- [**Composite**](./composite-example) (`composite-example`): Treats parts and wholes uniformly.
+- **Composite** (`composite-example`): Treats parts and wholes uniformly.
 - [**Facade**](./facade-example) (`facade-example`): Provides a simple façade over a complex subsystem.
 - [**Proxy**](./proxy-example) (`proxy-example`): Controls access or delays initialization.
 - [**Flyweight**](./flyweight-example) (`flyweight-example`): Shares state to handle many objects efficiently.
 
 The following is ignored:
 
-- [**Bridge**](./bridge-example) (`bridge-example`): Separates abstraction and implementation.
-  - **Note**: Go's `interface` makes this pattern largely unnecessary. Ignored.
+- **Bridge** (`bridge-example`): Separates abstraction and implementation.
+  - **Note**: Go's `interface` makes this pattern largely unnecessary.
 
 ### 3. Behavioral Patterns
 
@@ -99,23 +99,22 @@ Patterns concerning communication and responsibility between objects.
 
 The following are ignored:
 
-- [**Iterator**](./iterator-example) (`iterator-example`): Traverses collections.
-  - **Note**: Go has `for range`, and custom iterators usually just need a `Next() (T, bool)` method. Ignored.
-- [**Mediator**](./mediator-example) (`mediator-example`): Centralizes interactions.
-  - **Note**: Often leads to "God Objects". Ignored.
-- [**Template Method**](./template-method-example) (`template-method-example`): Shares an algorithm skeleton.
-  - **Note**: Go lacks inheritance. Use functions, small interfaces, and composition instead. Ignored.
-- [**Visitor**](./visitor-example) (`visitor-example`): Separates operations from data structures.
-  - **Note**: Usually replaced by `switch n := n.(type)` (type switches). Ignored.
-- [**Interpreter**](./interpreter-example) (`interpreter-example`): Models grammar rules.
-  - **Note**: Interesting for compilers, but skipped in this collection.
+- **Iterator** (`iterator-example`): Traverses collections.
+  - **Note**: Go has `for range`, and custom iterators usually just need a `Next() (T, bool)` method.
+- **Mediator** (`mediator-example`): Centralizes interactions.
+  - **Note**: Often leads to "God Objects".
+- **Template Method** (`template-method-example`): Shares an algorithm skeleton.
+  - **Note**: Go lacks inheritance. Use functions, small interfaces, and composition instead.
+- **Visitor** (`visitor-example`): Separates operations from data structures.
+  - **Note**: Usually replaced by `switch n := n.(type)` (type switches).
+- **Interpreter** (`interpreter-example`): Models grammar rules.
+  - **Note**: Skipped in this collection.
 
 ### Other Patterns
 
 Commonly used in Go.
 
 - [**Functional Options**](./functional-options-example): A Go‑idiomatic pattern for flexible initialization.
-- [**Entitlement (Gateway)**](./entitlement-example): Authority management example using a Gateway (= Adapter) to abstract external resources.
 
 ## Notes
 
